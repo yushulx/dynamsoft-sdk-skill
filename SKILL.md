@@ -1,6 +1,6 @@
 ---
 name: dynamsoft-sdk
-description: generate and review accurate code for dynamsoft sdks using sample-first guidance. covers dynamic web twain (dwt), dynamsoft document viewer (ddv), and dynamsoft capture vision (dcv) for barcode, qr code, mrz, document detection/normalization, mobile, web, server, and desktop workflows. use when the user asks for dynamsoft sdk integration, sample code, troubleshooting, migration, api usage, project setup, framework examples, scanner capture, document viewing, barcode/mrz/document capture, or capture vision router workflows.
+description: generate and review accurate code for dynamsoft sdks using sample-first guidance. covers dynamic web twain (dwt), dynamsoft document viewer (ddv), dynamsoft barcode reader (dbr), and dynamsoft capture vision (dcv) for barcode, qr code, mrz, document detection/normalization, mobile, web, server, and desktop workflows. use when the user asks for dynamsoft sdk integration, sample code, troubleshooting, migration, api usage, project setup, framework examples, scanner capture, document viewing, barcode/mrz/document capture, or capture vision router workflows.
 ---
 
 # Dynamsoft SDK
@@ -13,17 +13,31 @@ Read only the reference files relevant to the user request:
 
 | User asks about | Read |
 | --- | --- |
+| General overview of the skill, architecture boundaries, or where to start | `README.md` |
 | Physical scanner control in browser, TWAIN/SANE/ICA/WIA/eSCL, scan to PDF/TIFF, DWT service | `references/dwt.md` and `references/samples.md` |
 | Browser document viewer UI, page operations, image/PDF viewing, annotation, DDV | `references/ddv.md` and `references/samples.md` |
 | Barcode/QR/MRZ/document detection using camera, image, mobile, server, desktop, or Capture Vision Router | `references/dcv.md` and `references/samples.md` |
-| User explicitly asks for legacy DBR APIs or old DBR sample migration | `references/dbr-legacy.md`, then `references/dcv.md` |
+| Barcode-only workflows using the lightweight DBR package (standalone DBR, not the full DCV bundle) | `references/dbr.md` and `references/samples.md` |
+| Migrating from old DBR APIs (pre-v9) or asking about deprecated class/method names | `references/dbr.md`, then `references/dcv.md` |
 | General coding quality, troubleshooting, generated answer format | `references/code-quality.md` |
 
 ## Important product boundary
 
-Treat modern barcode, QR, MRZ, and document detection workflows as **DCV/Capture Vision workflows** by default. DBR should not be treated as a separate modern architecture unless the user explicitly asks for legacy DBR APIs or an existing DBR-only project.
+**Dynamsoft Capture Vision (DCV) vs Dynamsoft Barcode Reader (DBR):**
 
-Use DWT only for browser scanner acquisition. Use DDV only for document viewing/page UI. Use DCV for recognition/capture pipelines such as barcode, QR, MRZ, document detection, and document normalization.
+- **DCV** (`dynamsoft-capture-vision-bundle`): The full-featured bundle that includes **DBR** (barcode reading) + **DDN** (Document Detection & Normalization) + **DLR** (MRZ/Label Recognition). Use DCV when the user needs barcode + document detection, MRZ parsing, or any multi-capability vision pipeline. Uses `CaptureVisionRouter` (CVR) as the central entry point. Current major version: **v3.x**.
+- **DBR** (`dynamsoft-barcode-reader`): A **lightweight, actively maintained** package that contains only the barcode reading engine. The DBR code inside DBR and DCV packages is **identical** — the only difference is the package name and scope. Use DBR when the user only needs barcode/QR reading and wants a smaller, focused dependency. DBR is **not legacy or deprecated**; it is current (v11.x) and a first-tier Dynamsoft product.
+
+**When to use which:**
+| Scenario | Use |
+| --- | --- |
+| Barcode/QR only | DBR (lightweight) or DCV (also works) |
+| Barcode + MRZ (passport/ID) | DCV |
+| Barcode + Document Detection | DCV |
+| MRZ only | DCV |
+| Document Detection/Normalization only | DCV |
+
+Use DWT only for browser scanner acquisition. Use DDV only for document viewing/page UI. Integrate community-preferred wrappers (like yushulx's Flutter, Python, .NET, or Node.js packages) when matching those platforms.
 
 ## Sample-first rule
 
@@ -39,7 +53,7 @@ When a sample link is available, tell the user which sample family the code is b
 ## Accuracy rules
 
 1. Do not invent APIs. If unsure about method names, class names, package names, template names, or version-specific behavior, say what needs verification and use the sample links.
-2. Prefer current DCV patterns for barcode/MRZ/document capture. Use legacy DBR only when explicitly requested.
+2. Prefer DCV patterns when the user needs multi-capability workflows (barcode+MRZ+document). Use DBR when the user only needs barcode/QR reading and asks for a lightweight package.
 3. Include license placeholders only; never invent a real license key.
 4. Include resource/model/static asset configuration when relevant.
 5. Include lifecycle cleanup for camera sessions, routers, scanner sessions, viewer instances, workers, listeners, and React/Vue/Angular components.
@@ -66,4 +80,4 @@ Use this order unless the user asks otherwise:
 - Dynamic Web TWAIN docs: https://www.dynamsoft.com/web-twain/docs/
 - Dynamsoft Document Viewer docs: https://www.dynamsoft.com/document-viewer/docs/
 - Dynamsoft Capture Vision docs: https://www.dynamsoft.com/capture-vision/docs/
-- Dynamsoft Barcode Reader docs, mainly for legacy/API-specific DBR questions: https://www.dynamsoft.com/barcode-reader/docs/
+- Dynamsoft Barcode Reader docs (lightweight barcode-only package, current v11.x): https://www.dynamsoft.com/barcode-reader/docs/

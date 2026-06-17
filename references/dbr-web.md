@@ -1,5 +1,7 @@
 # DBR web redirect
 
-Barcode and QR code scanning in web apps should normally use `references/dcv.md` plus `references/samples.md`.
+Barcode and QR code scanning in web apps can use either **DCV** (`references/dcv.md`) or the lightweight **DBR** (`references/dbr.md`). Both share the same barcode engine.
 
-Use this file only as a redirect. For legacy DBR JavaScript APIs, read `references/dbr-legacy.md`.
+Use DCV when the user also needs MRZ or document detection. Use DBR when the user only needs barcode/QR reading and prefers a smaller dependency.
+
+For sample code, always check `references/samples.md` first.

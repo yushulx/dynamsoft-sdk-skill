@@ -4,7 +4,7 @@
 
 Confirm or infer these fields:
 
-- Product: DWT, DDV, DBR, or DCV
+- Product: DWT, DDV, DBR, or DCV (see `references/dbr.md` for DBR vs DCV distinction)
 - Platform: web, mobile, server, desktop, or hybrid
 - Language/framework: JavaScript, TypeScript, React, Vue, Angular, Android/Kotlin, iOS/Swift, Flutter, React Native, C#, Python, Java, C++, Node.js
 - SDK version if provided
