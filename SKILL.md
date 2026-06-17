@@ -1,0 +1,69 @@
+---
+name: dynamsoft-sdk
+description: generate and review accurate code for dynamsoft sdks using sample-first guidance. covers dynamic web twain (dwt), dynamsoft document viewer (ddv), and dynamsoft capture vision (dcv) for barcode, qr code, mrz, document detection/normalization, mobile, web, server, and desktop workflows. use when the user asks for dynamsoft sdk integration, sample code, troubleshooting, migration, api usage, project setup, framework examples, scanner capture, document viewing, barcode/mrz/document capture, or capture vision router workflows.
+---
+
+# Dynamsoft SDK
+
+Use this skill to generate and review Dynamsoft SDK code. Prefer **official or known working sample code first**, then docs for API details. Do not rely on docs alone when a relevant sample exists.
+
+## Routing
+
+Read only the reference files relevant to the user request:
+
+| User asks about | Read |
+| --- | --- |
+| Physical scanner control in browser, TWAIN/SANE/ICA/WIA/eSCL, scan to PDF/TIFF, DWT service | `references/dwt.md` and `references/samples.md` |
+| Browser document viewer UI, page operations, image/PDF viewing, annotation, DDV | `references/ddv.md` and `references/samples.md` |
+| Barcode/QR/MRZ/document detection using camera, image, mobile, server, desktop, or Capture Vision Router | `references/dcv.md` and `references/samples.md` |
+| User explicitly asks for legacy DBR APIs or old DBR sample migration | `references/dbr-legacy.md`, then `references/dcv.md` |
+| General coding quality, troubleshooting, generated answer format | `references/code-quality.md` |
+
+## Important product boundary
+
+Treat modern barcode, QR, MRZ, and document detection workflows as **DCV/Capture Vision workflows** by default. DBR should not be treated as a separate modern architecture unless the user explicitly asks for legacy DBR APIs or an existing DBR-only project.
+
+Use DWT only for browser scanner acquisition. Use DDV only for document viewing/page UI. Use DCV for recognition/capture pipelines such as barcode, QR, MRZ, document detection, and document normalization.
+
+## Sample-first rule
+
+Before generating code, identify the closest sample category in `references/samples.md`:
+
+1. Same product/workflow.
+2. Same platform/language/framework.
+3. Same input source: scanner, camera, static image/PDF, uploaded file, or server batch.
+4. Same output: barcode text, MRZ fields, detected document quadrilateral, normalized document, viewer page operations, PDF/TIFF/image.
+
+When a sample link is available, tell the user which sample family the code is based on. If exact API names are uncertain for the user's version, provide a skeleton and point to the relevant sample instead of inventing calls.
+
+## Accuracy rules
+
+1. Do not invent APIs. If unsure about method names, class names, package names, template names, or version-specific behavior, say what needs verification and use the sample links.
+2. Prefer current DCV patterns for barcode/MRZ/document capture. Use legacy DBR only when explicitly requested.
+3. Include license placeholders only; never invent a real license key.
+4. Include resource/model/static asset configuration when relevant.
+5. Include lifecycle cleanup for camera sessions, routers, scanner sessions, viewer instances, workers, listeners, and React/Vue/Angular components.
+6. For web apps, include HTTPS/localhost camera requirements and static asset copy/serve notes.
+7. For mobile apps, include permission and lifecycle notes.
+8. For server/desktop code, include input validation, batch processing, and no-result handling.
+9. Link sample code whenever useful; sample code links are part of the answer, not optional extras.
+
+## Default output structure for code answers
+
+Use this order unless the user asks otherwise:
+
+1. Assumption line: product/workflow, platform, framework, version if known.
+2. Closest sample link(s) from `references/samples.md`.
+3. Install/setup commands.
+4. Minimal working code or skeleton.
+5. Required resources/configuration.
+6. Common pitfalls and verification steps.
+7. Documentation links for detailed API options.
+
+## Official starting points
+
+- Dynamsoft GitHub sample hub: https://github.com/Dynamsoft
+- Dynamic Web TWAIN docs: https://www.dynamsoft.com/web-twain/docs/
+- Dynamsoft Document Viewer docs: https://www.dynamsoft.com/document-viewer/docs/
+- Dynamsoft Capture Vision docs: https://www.dynamsoft.com/capture-vision/docs/
+- Dynamsoft Barcode Reader docs, mainly for legacy/API-specific DBR questions: https://www.dynamsoft.com/barcode-reader/docs/
