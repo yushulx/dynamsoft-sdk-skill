@@ -16,13 +16,58 @@ The DCV architecture is highly modular and centered around the **`CaptureVisionR
 4.  **`CapturedResultReceiver` / `IntermediateResultReceiver`**: Receives asynchronous capture results.
 5.  **Preset Templates (Task Modes)**: Tells the router what scanning behavior is requested.
 
-### Preset Templates (`EnumPresetTemplate`)
-*   `PT_READ_BARCODES` ("ReadBarcodes_Default") — Default barcode scanning.
-*   `PT_READ_SINGLE_BARCODE` ("ReadSingleBarcode") — Optimized for single barcode in view.
-*   `PT_READ_BARCODES_SPEED_FIRST` ("ReadBarcodes_SpeedFirst") — Mobile-optimized high speed.
-*   `PT_READ_BARCODES_READ_RATE_FIRST` ("ReadBarcodes_ReadRateFirst") — Thorough but slower scan of damaged/tiny barcodes.
-*   `PT_DETECT_AND_NORMALIZE_DOCUMENT` ("DetectAndNormalizeDocument") — Locate document boundaries & correct perspective.
-*   `PT_DETECT_DOCUMENT_BOUNDARIES` ("DetectDocumentBoundaries") — Only retrieve document quadrilateral corners.
+### Preset Templates (Task Modes)
+
+The template name passed to `capture()` / `startCapturing()` is a **string**. Two kinds exist:
+
+**A. Built-in preset templates** (defined by `CPresetTemplate`; `EnumPresetTemplate` in some bindings). The canonical string carries a `_Default` suffix; the shorter alias in parentheses is also accepted.
+
+| Enum constant | Canonical string (alias) | Purpose |
+| --- | --- | --- |
+| `PT_DEFAULT` | `Default` (`default`) | Full pipeline: barcode + text line + document normalize. |
+| `PT_READ_BARCODES` | `ReadBarcodes_Default` (`read-barcodes`) | Default barcode scanning. |
+| `PT_READ_SINGLE_BARCODE` | `ReadSingleBarcode` | Optimized for a single barcode in view. |
+| `PT_READ_BARCODES_SPEED_FIRST` | `ReadBarcodes_SpeedFirst` | Mobile-optimized high speed. |
+| `PT_READ_BARCODES_READ_RATE_FIRST` | `ReadBarcodes_ReadRateFirst` | Thorough but slower scan of damaged/tiny barcodes. |
+| `PT_DETECT_DOCUMENT_BOUNDARIES` | `DetectDocumentBoundaries_Default` (`detect-document-boundaries`) | Only retrieve the document quadrilateral corners. |
+| `PT_DETECT_AND_NORMALIZE_DOCUMENT` | `DetectAndNormalizeDocument_Default` (`detect-and-normalize-document`) | Locate document boundaries **and** correct perspective. |
+| `PT_NORMALIZE_DOCUMENT` | `NormalizeDocument_Default` (`normalize-document`) | Normalize/deskew using a known/provided boundary. |
+| `PT_RECOGNIZE_TEXT_LINES` | `RecognizeTextLines_Default` (`recognize-textlines`) | General text line (label) recognition. |
+
+> Note: The earlier short strings `"DetectAndNormalizeDocument"` / `"DetectDocumentBoundaries"` (no `_Default`) are **not** the canonical names. Prefer the `_Default` forms above; use the lowercase hyphenated aliases only for backward compatibility.
+
+**B. MRZ / specialized recognition templates.** These names are **not** part of the built-in barcode/document preset list — they are provided by the MRZ/recognition model resources (the DLR module). In the mobile MRZ bundle they come from the bundled `mrz-mobile.json` template loaded via `initSettingsFromFile(...)`; in the web/server bundles the MRZ models supply them. Pass the name directly to `capture()` / `startCapturing()` / `switchCapturingTemplate()`:
+
+| Template string | Purpose |
+| --- | --- |
+| `ReadPassportAndId` | Read MRZ on **both** passports and ID cards (most common default). |
+| `ReadPassport` | Read MRZ on passports only (TD3). |
+| `ReadId` | Read MRZ on ID cards only (TD1/TD2). |
+| `ReadVINText` | Recognize a Vehicle Identification Number (VIN). |
+
+These are verified against the official `Dynamsoft/mrz-scanner-mobile` samples (Android/iOS). For MRZ, the parsed document type is reported as `MRTD_TD1_ID`, `MRTD_TD2_ID`, or `MRTD_TD3_PASSPORT`.
+
+### MRZ Capture Snippet (Python)
+```python
+from dynamsoft_capture_vision_bundle import *
+
+error_code, error_msg = LicenseManager.init_license("YOUR_LICENSE_KEY")
+router = CaptureVisionRouter()
+
+# If using a dedicated MRZ template file, load it first:
+# router.init_settings_from_file("mrz.json")
+
+# Use the MRZ template name directly:
+result = router.capture(file_path, "ReadPassportAndId")  # or "ReadPassport" / "ReadId"
+
+items = result.get_items()
+for item in items:
+    if item.get_type() == EnumCapturedResultItemType.CRIT_PARSED_RESULT:
+        parsed_item = ParsedResultItem(item)
+        # Field names: documentType, firstName, lastName, sex, nationality,
+        # documentNumber, dateOfBirth, dateOfExpiry, issuingState, etc.
+        print(parsed_item.get_code_type())
+```
 
 ---
 
