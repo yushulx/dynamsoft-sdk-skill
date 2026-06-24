@@ -71,3 +71,13 @@ If the user asks about pre-v9 DBR APIs, deprecated class names, or old method si
 - Point them to the sample links above and the official DBR docs.
 - Do not invent old API names; use the official docs or samples as the source of truth.
 - Recommend upgrading to the current DBR v11.x or migrating to DCV for new development.
+
+## Template tuning / optimization
+
+When the user wants to **improve the decode rate** on hard barcode images, **tune a DBR template JSON**, **understand template parameters** (DeblurModes, LocalizationModes, GrayscaleEnhancementModes, etc.), or **generate a visual decode report**, use the bundled `template-optimizer/` sub-skill rather than hand-editing template JSON.
+
+- Start with `template-optimizer/SKILL.md` and pick a mode: Optimize, Educate, or Report.
+- Read `template-optimizer/KNOWLEDGE.md` for the parameter reference and proven optimization order.
+- Use `template-optimizer/tools/` scripts for single-image triage and `template-optimizer/resources/harness_py/main.py` for dataset benchmarking.
+
+This sub-skill is Python-only and depends on `dynamsoft-capture-vision-bundle`.

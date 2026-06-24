@@ -1,6 +1,6 @@
 ---
 name: dynamsoft-sdk
-description: generate and review accurate code for dynamsoft sdks using sample-first guidance. covers dynamic web twain (dwt), dynamsoft document viewer (ddv), dynamsoft barcode reader (dbr), and dynamsoft capture vision (dcv) for barcode, qr code, mrz, document detection/normalization, mobile, web, server, and desktop workflows. use when the user asks for dynamsoft sdk integration, sample code, troubleshooting, migration, api usage, project setup, framework examples, scanner capture, document viewing, barcode/mrz/document capture, or capture vision router workflows.
+description: generate and review accurate code for dynamsoft sdks using sample-first guidance. covers dynamic web twain (dwt), dynamsoft document viewer (ddv), dynamsoft barcode reader (dbr), and dynamsoft capture vision (dcv) for barcode, qr code, mrz, document detection/normalization, mobile, web, server, and desktop workflows. also includes a template-optimizer sub-skill for tuning dbr template json to maximize decode rates on difficult barcode images. use when the user asks for dynamsoft sdk integration, sample code, troubleshooting, migration, api usage, project setup, framework examples, scanner capture, document viewing, barcode/mrz/document capture, capture vision router workflows, or barcode template tuning/optimization.
 ---
 
 # Dynamsoft SDK
@@ -19,6 +19,7 @@ Read only the reference files relevant to the user request:
 | Barcode/QR/MRZ/document detection using camera, image, mobile, server, desktop, or Capture Vision Router | `references/dcv.md` and `references/samples.md` |
 | Barcode-only workflows using the lightweight DBR package (standalone DBR, not the full DCV bundle) | `references/dbr.md` and `references/samples.md` |
 | Migrating from old DBR APIs (pre-v9) or asking about deprecated class/method names | `references/dbr.md`, then `references/dcv.md` |
+| Optimizing/tuning a DBR template JSON, improving decode rate on hard barcode images, understanding DBR template parameters, or generating barcode decode reports | `template-optimizer/SKILL.md` (then `template-optimizer/KNOWLEDGE.md`) |
 | General coding quality, troubleshooting, generated answer format | `references/code-quality.md` |
 
 ## Important product boundary
@@ -73,6 +74,17 @@ Use this order unless the user asks otherwise:
 5. Required resources/configuration.
 6. Common pitfalls and verification steps.
 7. Documentation links for detailed API options.
+
+## Template optimization (DBR)
+
+When the user wants to **tune a barcode reading template**, **improve decode rate on difficult images**, **understand DBR template parameters**, or **generate a visual decode report**, route to the bundled `template-optimizer` sub-skill instead of writing template JSON by hand.
+
+1. Read `template-optimizer/SKILL.md` and follow its mode selection (Optimize / Educate / Report).
+2. Read `template-optimizer/KNOWLEDGE.md` for the parameter reference and proven optimization order before editing any template.
+3. Use the bundled helper tools under `template-optimizer/tools/` for single-image triage (`validate_dbr_template.py`, `probe_dbr_templates.py`, `compare_dbr_template_profiles.py`) and `template-optimizer/resources/harness_py/main.py` for dataset benchmarking.
+4. Treat `template-optimizer/` as `SKILL_DIR` when following that sub-skill's instructions.
+
+This sub-skill is Python-only and depends on `dynamsoft-capture-vision-bundle` (see `template-optimizer/requirements.txt`).
 
 ## Official starting points
 
