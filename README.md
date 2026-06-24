@@ -61,6 +61,16 @@ Before generating any code, the skill identifies the closest sample from `refere
 3.  **Input Source**: Camera, static image/PDF, file upload, or physical scanner.
 4.  **Output**: Decoded data (barcodes, MRZ), coordinates, cropped/normalized document image, viewer UI.
 
+## Installation
+
+Install this skill via `npx skills add`:
+
+```bash
+npx skills add https://github.com/yushulx/dynamsoft-sdk-skill
+```
+
+This fetches the skill from GitHub and registers it with your AI coding agent (VS Code Copilot, Cursor, Claude Code, etc.).
+
 ## Getting Started
 
 To use this skill effectively in an AI-assisted development workflow (e.g., Cursor, Claude Desktop, Trae, or Gemini CLI), ask queries such as:
