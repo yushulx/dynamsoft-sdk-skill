@@ -45,6 +45,20 @@ Use this order when debugging:
 8. Check input quality: blur, low contrast, rotation, tiny barcode, glare, unsupported symbology.
 9. Check deployment path: CDN vs local resource path, public base URL, reverse proxy, CORS.
 
+## Known error: `Uncaught SyntaxError: Unexpected token '<'` (web)
+
+Symptom: A Dynamsoft web SDK (DCV/DBR/DDV) throws `Uncaught SyntaxError: Unexpected token '<'` — often when `LicenseManager.initLicense()` runs or when `router.capture()` first loads an engine, even though installation and license look correct.
+
+Cause: The app uses a bundler (Vite, webpack, Rollup, Next.js, etc.). Bundlers prevent the SDK from inferring its own script URL, so the SDK requests `.wasm`/worker assets from the app's own origin. The dev/prod server answers those requests with the SPA `index.html`, and the leading `<` of that HTML is what the JS engine chokes on.
+
+Fix: Set the engine resource path explicitly **before** initializing the license:
+
+- DCV/DBR bundle: `CoreModule.engineResourcePaths.rootDirectory = "https://cdn.jsdelivr.net/npm/";` — the property is `rootDirectory` (NOT `root`), and the value is the npm CDN root (the SDK appends `<package>@<version>/dist/` itself).
+- DDV: `Dynamsoft.DDV.Core.engineResourcePath = "https://cdn.jsdelivr.net/npm/dynamsoft-document-viewer@<version>/dist/engine";` before `Core.init()`.
+- Alternatively self-host the SDK's `dist` assets and point the path at that local URL.
+
+Plain `<script>`-tag usage (no bundler) auto-detects the path and usually does not need this. Verified against `dynamsoft-capture-vision-bundle` v3.4.x. See `references/dcv.md` and `references/ddv.md`.
+
 ## Output style
 
 - Prefer minimal working examples over long explanations.
