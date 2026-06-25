@@ -49,7 +49,7 @@ For DDV integration, provide:
 ## Common pitfalls
 
 - Confusing DDV with DWT: DDV views/manages documents; DWT controls scanners.
-- Missing resource files after bundling.
+- Missing resource files after bundling. When DDV is built through a bundler (Vite/webpack/Rollup/Next.js) it cannot infer its own script URL, so the `.wasm`/worker assets are requested from the app origin and the server returns `index.html` instead — surfacing as `Uncaught SyntaxError: Unexpected token '<'`. Set the engine resource path explicitly before `Core.init()`, e.g. `Dynamsoft.DDV.Core.engineResourcePath = "https://cdn.jsdelivr.net/npm/dynamsoft-document-viewer@<version>/dist/engine"` (or a self-hosted copy of that `dist/engine` folder). See the analogous `CoreModule.engineResourcePaths.rootDirectory` note in `references/dcv.md` for the same root cause in DCV.
 - Creating the viewer before the container DOM node exists.
 - Forgetting cleanup in SPA route changes.
 - Assuming all annotation/page APIs exist across every major version; verify exact APIs if the version is not provided.
