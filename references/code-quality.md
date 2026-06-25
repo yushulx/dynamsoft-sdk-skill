@@ -59,6 +59,39 @@ Fix: Set the engine resource path explicitly **before** initializing the license
 
 Plain `<script>`-tag usage (no bundler) auto-detects the path and usually does not need this. Verified against `dynamsoft-capture-vision-bundle` v3.4.x. See `references/dcv.md` and `references/ddv.md`.
 
+## Known error: DWT `OnPostAllTransfers` event never fires (instance vs global registration)
+
+Symptom: `OnPostAllTransfers` (or other transfer events like `OnPostTransfer`) is registered via `Dynamsoft.DWT.RegisterEvent("OnPostAllTransfers", ...)` but never fires after scanning completes. No images are rendered even though `AcquireImageAsync` succeeds.
+
+Cause: DWT has two event registration APIs with different scopes:
+
+| API | Scope | Valid events |
+|---|---|---|
+| `Dynamsoft.DWT.RegisterEvent(name, cb)` | **Global** — fires for any WebTwain instance | `OnWebTwainReady` only |
+| `DWTObject.RegisterEvent(name, cb)` | **Instance** — fires only for that specific WebTwain instance | `OnPostAllTransfers`, `OnPostTransfer`, `OnPostLoad`, `OnGetFilePath`, etc. |
+
+Using the global API for instance events silently fails — the callback is never invoked.
+
+Fix:
+- Always register transfer/buffer events on the `DWTObject` instance **after** it is obtained inside `OnWebTwainReady`:
+
+```javascript
+Dynamsoft.DWT.RegisterEvent("OnWebTwainReady", function () {
+  DWTObject = Dynamsoft.DWT.GetWebTwain('dwtcontrolContainer');
+  DWTObject.RegisterEvent("OnPostAllTransfers", function () {
+    // now this fires after each scan
+  });
+});
+```
+
+- As a belt-and-suspenders pattern, also call the image rendering logic inside the `.then()` of `AcquireImageAsync()`, since that promise resolves when acquisition finishes and does not depend on any event registration:
+
+```javascript
+DWTObject.AcquireImageAsync({ ... }).then(function () {
+  renderImages(); // fallback in case event timing varies
+});
+```
+
 ## Output style
 
 - Prefer minimal working examples over long explanations.

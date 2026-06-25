@@ -92,6 +92,39 @@ When generating DWT code, pick the closest framework sample first, then adapt it
 - Browser security or OS permissions block scanner/camera access.
 - The scanner UI is hidden with `IfShowUI: false` but the device requires vendor UI for some settings.
 - Index operations use zero-based image indexes.
+- **`GetImageURL()` returns URLs tied to the internal buffer — they become invalid after `RemoveAllImages()`.** Use `ConvertToBlob()` instead when you need images to persist beyond buffer operations (see "Extracting images without the DWT viewer" below).
+
+## Extracting images without the DWT viewer
+
+When you want to hide the DWT viewer and display scanned images as custom `<img>` elements, **never** use `GetImageURL()` then `RemoveAllImages()`. The URL from `GetImageURL()` is served by the DWT service and invalidated when the buffer is cleared.
+
+Instead, use `ConvertToBlob()` to extract each image as a standalone `Blob`, then create an independent `ObjectURL`:
+
+```javascript
+function convertToBlobAsync(indices) {
+  return new Promise(function (resolve, reject) {
+    DWObject.ConvertToBlob(
+      indices,
+      Dynamsoft.DWT.EnumDWT_ImageType.IT_PNG,
+      function (blob) { resolve(blob); },
+      function (ec, es) { reject(new Error(es)); }
+    );
+  });
+}
+
+// After AcquireImageAsync resolves:
+for (let i = 0; i < count; i++) {
+  const blob = await convertToBlobAsync([i]);
+  const url = URL.createObjectURL(blob);
+  const img = document.createElement('img');
+  img.src = url;
+  container.appendChild(img);
+}
+// Now it is safe to clear the buffer
+DWObject.RemoveAllImages();
+```
+
+`ConvertToBlob` API reference: https://www.dynamsoft.com/web-twain/docs/info/api/WebTwain_Buffer.html
 
 ## Good default answer behavior
 
