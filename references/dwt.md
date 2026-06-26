@@ -126,6 +126,24 @@ DWObject.RemoveAllImages();
 
 `ConvertToBlob` API reference: https://www.dynamsoft.com/web-twain/docs/info/api/WebTwain_Buffer.html
 
+## OCR (OCRKit addon)
+
+DWT provides on-device OCR via the OCRKit addon. OCR requires two components:
+
+1. **JS addon script**: `dynamsoft.webtwain.addon.ocrkit.js` (CDN: `https://cdn.jsdelivr.net/npm/dwt/dist/dynamsoft.webtwain.addon.ocrkit.js`)
+2. **OCR runtime package**: Download and install as administrator from:
+   - **Correct URL**: `https://download2.dynamsoft.com/dwt/DynamicWebTWAINOCRResources.zip`
+   - Unzip and run `Install.cmd` as administrator to copy runtime files into the DWT Service installation folder.
+
+Key API methods on `DWTObject.Addon.OCRKit`:
+- `GetInstalledOCRInfo()` — check if OCR runtime is installed.
+- `Recognize(index, {settings: {language: 'en'}})` — OCR a single page.
+- `SaveToPath(indices, Dynamsoft.DWT.EnumDWT_OCRKitOutputFormat.PDF_WITH_EXTRA_TEXTLAYER, path)` — save as searchable PDF.
+- `DetectPageOrientation(index)` — detect page rotation angle.
+- `SaveAsBlob(indices, format)` — save OCR result as blob.
+
+OCR reference: https://www.dynamsoft.com/web-twain/docs/info/api/Addon_OCR.html
+
 ## Good default answer behavior
 
 When generating DWT code, include:
