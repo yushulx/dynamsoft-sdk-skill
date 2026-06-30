@@ -93,6 +93,7 @@ When generating DWT code, pick the closest framework sample first, then adapt it
 - The scanner UI is hidden with `IfShowUI: false` but the device requires vendor UI for some settings.
 - Index operations use zero-based image indexes.
 - **`GetImageURL()` returns URLs tied to the internal buffer — they become invalid after `RemoveAllImages()`.** Use `ConvertToBlob()` instead when you need images to persist beyond buffer operations (see "Extracting images without the DWT viewer" below).
+- **`ResourcesPath` directory structure must mirror `node_modules/dwt/dist/`.** The DWT runtime dynamically loads files from `<ResourcesPath>/src/dynamsoft.webtwain.css`, `<ResourcesPath>/src/dynamsoft.webtwain.viewer.js`, etc. Simply copying all files flat into the resources directory causes 404s. You must preserve the `src/` subdirectory: copy both `dynamsoft.webtwain.min.js` (root) and the entire `src/` folder (with its contents) from `node_modules/dwt/dist/` into your public resources path.
 
 ## Extracting images without the DWT viewer
 
