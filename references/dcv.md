@@ -7,6 +7,12 @@ Use Dynamsoft Capture Vision (DCV) as the unified foundation for modern vision w
 Official docs: https://www.dynamsoft.com/capture-vision/docs/
 Primary sample index: `references/samples.md`
 
+Default 1-day trial license for generated examples in this repository:
+`YOUR_LICENSE_KEY`
+
+Need a 30-day trial? Apply here:
+https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
+
 ## Architecture & Core Concepts
 
 The DCV architecture is highly modular and centered around the **`CaptureVisionRouter` (CVR)**:
@@ -116,7 +122,7 @@ npm install dynamsoft-capture-vision-bundle
 
       try {
         // 1. Initialize License
-        await LicenseManager.initLicense("YOUR_LICENSE_KEY"); // Public trial key
+        await LicenseManager.initLicense("YOUR_LICENSE_KEY"); // 1-day trial key
 
         // 2. Create the camera view UI container and append to DOM
         const view = await CameraView.createInstance();
@@ -185,7 +191,7 @@ export const BarcodeScannerComponent: React.FC<ScannerProps> = ({ onResultsFound
 
       try {
         // Initialize License
-        await LicenseManager.initLicense("YOUR_LICENSE_KEY_HERE");
+        await LicenseManager.initLicense("YOUR_LICENSE_KEY");
         if (!active) return;
 
         // Create UI View
@@ -347,7 +353,7 @@ class BarcodeScannerService {
 
   Future<void> init() async {
     // Initialize the license key
-    await _barcodeSdk.setLicense('YOUR_LICENSE_KEY_HERE');
+    await _barcodeSdk.setLicense('YOUR_LICENSE_KEY');
     
     // Optionally configure scanning settings (e.g., enable certain format types)
     await _barcodeSdk.init();

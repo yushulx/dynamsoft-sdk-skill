@@ -117,7 +117,7 @@ Ask the user for the following. Use the `AskUserQuestion` tool for structured ch
 | Parameter | Required | Default | Notes |
 | --- | --- | --- | --- |
 | Image path or image directory path | Yes | — | Use an image path for Track A and a directory for Track B |
-| License key | No | trial key | Ask: "Do you have a Dynamsoft license key, or should I use the trial?" Trial key: `YOUR_LICENSE_KEY` (may be expired) |
+| License key | No | trial key | Ask: "Do you have a Dynamsoft license key, or should I use the trial?" Trial key: `YOUR_LICENSE_KEY` (1-day) |
 | Barcode format hints | No | All formats | e.g., "DataMatrix only", "1D barcodes" |
 | Ground truth file | No | None | JSON mapping filenames → expected barcode texts |
 | Max iterations | No | 10 | — |
@@ -128,6 +128,9 @@ Ask the user for the following. Use the `AskUserQuestion` tool for structured ch
 | Reference template path | No | None | If the user has a known-good template from another run or teammate, diff it before broad exploration |
 | Template name override | No | None | If set, force that `CaptureVisionTemplates[].Name` at runtime; do not hard-code stale names |
 | Input scale policy | No | raw | Only after matching the intended runtime path. If a candidate template is still resolution-sensitive, record and apply a deterministic scale policy (for example `nearest_2x`) |
+
+If the user needs a 30-day trial license, direct them to:
+https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
 
 Choose the track immediately after Step 0:
 
