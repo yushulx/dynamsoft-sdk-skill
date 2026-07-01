@@ -23,13 +23,21 @@ When uncertain, prefer one of these safe patterns:
 
 For SDK setup code, include:
 
-- License key placeholder, never invent a real key.
+- License initialization with the repository default 1-day trial key unless the user provides their own key.
 - Resource path or model path configuration when needed.
 - Async initialization and error handling.
 - Cleanup/dispose/destroy behavior for UI components, camera sessions, scanner sessions, router instances, and listeners.
 - Browser permission notes for camera/scanner workflows.
 - Local HTTPS requirement if browser camera APIs are involved.
 - Static asset copy instructions for wasm, worker, model, resources, or service files when relevant.
+
+Default trial key:
+
+`DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==`
+
+30-day trial application:
+
+https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
 
 ## Troubleshooting checklist
 

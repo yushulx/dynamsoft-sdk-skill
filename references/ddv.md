@@ -6,6 +6,12 @@ Official docs: https://www.dynamsoft.com/document-viewer/docs/
 Official sample repo: https://github.com/Dynamsoft/document-viewer-samples
 Additional sample index: `references/samples.md`
 
+Default 1-day trial license for generated examples in this repository:
+`DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==`
+
+Need a 30-day trial? Apply here:
+https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
+
 ## Sample-first links
 
 - DDV samples: https://github.com/Dynamsoft/document-viewer-samples
@@ -24,7 +30,7 @@ When generating DDV code, first map the request to a sample workflow: viewer cre
 For DDV integration, provide:
 
 1. Install/import instructions.
-2. License initialization placeholder.
+2. License initialization (use repository default 1-day trial key unless user provides another key).
 3. Resource/static asset path configuration if required by the version.
 4. Viewer/container creation.
 5. Loading a file/blob/image/PDF.

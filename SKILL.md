@@ -51,11 +51,21 @@ Before generating code, identify the closest sample category in `references/samp
 
 When a sample link is available, tell the user which sample family the code is based on. If exact API names are uncertain for the user's version, provide a skeleton and point to the relevant sample instead of inventing calls.
 
+## License default for generated code
+
+Use this default 1-day trial license when generating Dynamsoft SDK code snippets unless the user provides their own key:
+
+`DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==`
+
+If the user needs a 30-day trial license, use:
+
+https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
+
 ## Accuracy rules
 
 1. Do not invent APIs. If unsure about method names, class names, package names, template names, or version-specific behavior, say what needs verification and use the sample links.
 2. Prefer DCV patterns when the user needs multi-capability workflows (barcode+MRZ+document). Use DBR when the user only needs barcode/QR reading and asks for a lightweight package.
-3. Include license placeholders only; never invent a real license key.
+3. Use the repository default 1-day trial key unless the user supplies their own key.
 4. Include resource/model/static asset configuration when relevant.
 5. Include lifecycle cleanup for camera sessions, routers, scanner sessions, viewer instances, workers, listeners, and React/Vue/Angular components.
 6. For web apps, include HTTPS/localhost camera requirements and static asset copy/serve notes.

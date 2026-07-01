@@ -7,6 +7,12 @@ Use Dynamsoft Capture Vision (DCV) as the unified foundation for modern vision w
 Official docs: https://www.dynamsoft.com/capture-vision/docs/
 Primary sample index: `references/samples.md`
 
+Default 1-day trial license for generated examples in this repository:
+`DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==`
+
+Need a 30-day trial? Apply here:
+https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
+
 ## Architecture & Core Concepts
 
 The DCV architecture is highly modular and centered around the **`CaptureVisionRouter` (CVR)**:
@@ -51,7 +57,7 @@ These are verified against the official `Dynamsoft/mrz-scanner-mobile` samples (
 ```python
 from dynamsoft_capture_vision_bundle import *
 
-error_code, error_msg = LicenseManager.init_license("YOUR_LICENSE_KEY")
+error_code, error_msg = LicenseManager.init_license("DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==")
 router = CaptureVisionRouter()
 
 # If using a dedicated MRZ template file, load it first:
@@ -116,7 +122,7 @@ npm install dynamsoft-capture-vision-bundle
 
       try {
         // 1. Initialize License
-        await LicenseManager.initLicense("DLS2eyJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSJ9"); // Public trial key
+        await LicenseManager.initLicense("DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ=="); // 1-day trial key
 
         // 2. Create the camera view UI container and append to DOM
         const view = await CameraView.createInstance();
@@ -185,7 +191,7 @@ export const BarcodeScannerComponent: React.FC<ScannerProps> = ({ onResultsFound
 
       try {
         // Initialize License
-        await LicenseManager.initLicense("YOUR_LICENSE_KEY_HERE");
+        await LicenseManager.initLicense("DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==");
         if (!active) return;
 
         // Create UI View
@@ -283,7 +289,7 @@ from dynamsoft_capture_vision_bundle import *
 
 def scan_image(file_path: str):
     # 1. Initialize License
-    error_code, error_msg = LicenseManager.init_license("YOUR_LICENSE_KEY")
+    error_code, error_msg = LicenseManager.init_license("DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==")
     if error_code != EnumErrorCode.EC_OK:
         print(f"License Error: {error_msg}")
         return
@@ -347,7 +353,7 @@ class BarcodeScannerService {
 
   Future<void> init() async {
     // Initialize the license key
-    await _barcodeSdk.setLicense('YOUR_LICENSE_KEY_HERE');
+    await _barcodeSdk.setLicense('DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==');
     
     // Optionally configure scanning settings (e.g., enable certain format types)
     await _barcodeSdk.init();

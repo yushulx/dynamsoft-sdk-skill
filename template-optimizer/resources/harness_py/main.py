@@ -35,7 +35,7 @@ import sys
 import tempfile
 import time
 
-TRIAL_LICENSE = "DLS2eyJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSJ9"
+TRIAL_LICENSE = "DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ=="
 EMBED_SIZE_THRESHOLD = 20 * 1024 * 1024  # 20 MB
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff", ".gif", ".heic", ".heif"}
 DEFAULT_TEMPLATE  = "ReadBarcodes_Default"
