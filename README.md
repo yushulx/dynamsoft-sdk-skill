@@ -50,8 +50,23 @@ To build apps conveniently and avoid architectural confusion, developers and AI 
 
 *   **Dynamic Web TWAIN (DWT)**: Used **strictly** for physical document scanning (TWAIN/SANE/ICA/WIA/eSCL) inside browser environments.
 *   **Dynamsoft Document Viewer (DDV)**: Used for browser-based document viewing, PDF rendering, annotations, and page manipulation.
-*   **Dynamsoft Capture Vision (DCV)**: The full unified architecture for camera/video capture, barcode/QR code reading, MRZ (passport) parsing, document boundary detection, and document normalization. Includes DBR + DDN + DLR.
-*   **Dynamsoft Barcode Reader (DBR)**: A **lightweight, actively maintained** package (v11.x) that contains only the barcode reading engine. The DBR code inside DBR and DCV is identical. Use DBR when you only need barcode/QR reading and prefer a smaller dependency. **DBR is not legacy or deprecated.**
+*   **Dynamsoft Capture Vision (DCV)**: The full unified architecture for camera/video capture, barcode/QR code reading, MRZ (passport) parsing, document boundary detection, and document normalization. Includes DBR + DDN + DLR. The core API entry point is `CaptureVisionRouter` (CVR), which orchestrates inputs, recognition engines, and output results.
+*   **Dynamsoft Barcode Reader (DBR)**: A **lightweight, actively maintained** package (v11.x) that is a **submodule of DCV**. It contains only the barcode reading engine — the same engine that runs inside DCV. Use DBR when you only need barcode/QR reading and prefer a smaller dependency. **DBR is not legacy or deprecated.**
+
+### DCV Core API vs RTU (Ready-to-Use) — Architectural Guidance
+
+Dynamsoft provides **RTU (ready-to-use)** wrapper components (e.g., `BarcodeScanner`, `BarcodeReader`, `DocumentScanner`, `MRZScanner`) that bundle a UI, camera, and recognition pipeline into a single high-level object. All RTU components are built **on top of** the DCV core APIs (`CaptureVisionRouter`, `CameraEnhancer`, `CameraView`, etc.).
+
+**RTU has poor programmability and flexibility**, making it only suitable for very simple use cases where the default UI and pipeline behavior is acceptable. For any real-world or complex scenario, developers **must** use the DCV core APIs directly:
+
+| Approach | Entry Point | Programmability | When to Use |
+|---------|-----------|-----------------|------------|
+| **DCV core API (recommended)** | `CaptureVisionRouter` + `CameraEnhancer` + `CameraView` + `CapturedResultReceiver` | Full control over pipeline, templates, ROI, multi-task, result handling | Any production, complex, or customized scenario |
+| **RTU wrapper (limited)** | `BarcodeScanner.createInstance()` / `BarcodeReader.createInstance()` / `DocumentScanner` etc. | Minimal — preset UI and pipeline, little customization | Quick prototypes or demos only |
+
+This skill always generates code using DCV core APIs. RTU wrappers are only mentioned as a quick-prototyping option with an explicit caveat about their limitations.
+
+> **Note**: On server/desktop platforms (Python, C++, .NET, Java, Node.js), there are no RTU wrappers — `CaptureVisionRouter` is used directly. The RTU wrappers exist only on web and mobile platforms.
 
 ## DBR Template Optimizer (Sub-Skill)
 
@@ -84,7 +99,7 @@ This fetches the skill from GitHub and registers it with your AI coding agent (V
 ## Getting Started
 
 To use this skill effectively in an AI-assisted development workflow (e.g., Cursor, Claude Desktop, Trae, or Gemini CLI), ask queries such as:
-- *"Help me build a real-time web barcode scanner using Dynamsoft Capture Vision React wrapper."*
+- *"Help me build a real-time web barcode scanner using Dynamsoft Capture Vision core APIs (CaptureVisionRouter)."*
 - *"How do I scan a document from a physical scanner in Angular using Dynamic Web TWAIN?"*
 - *"Write a Python script to scan MRZ from a passport image using Dynamsoft Capture Vision."*
 - *"How can I combine Dynamic Web TWAIN (DWT) and Dynamsoft Document Viewer (DDV) to scan and edit pages in a browser?"*
