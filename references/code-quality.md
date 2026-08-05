@@ -4,12 +4,18 @@
 
 Confirm or infer these fields:
 
-- Product: DWT, DDV, DBR, or DCV (see `references/dbr.md` for DBR vs DCV distinction)
+- Product: DWT, DDV, DBR, or DCV (see `references/dbr.md` for DBR as a DCV submodule)
 - Platform: web, mobile, server, desktop, or hybrid
 - Language/framework: JavaScript, TypeScript, React, Vue, Angular, Android/Kotlin, iOS/Swift, Flutter, React Native, C#, Python, Java, C++, Node.js
 - SDK version if provided
 - Input source: scanner, camera, image file, PDF, video stream, remote URL, or buffer
 - Output: barcode text, scanned image, PDF/TIFF, viewer UI, annotations, parsed result, or uploaded file
+
+## DCV core API preference rule
+
+When generating DCV or DBR code, **always use the DCV core APIs** (`CaptureVisionRouter`, `CameraEnhancer`, `CameraView`, `CapturedResultReceiver`) directly. Do **not** use RTU (ready-to-use) wrapper components (`BarcodeScanner.createInstance()`, `BarcodeReader.createInstance()`, `DocumentScanner`, `MRZScanner`) as the primary API — they have poor programmability and flexibility and are only suitable for very simple use cases. RTU wrappers are built on top of the DCV core APIs and should only be mentioned as a quick-prototyping option with an explicit caveat about their limitations.
+
+On server/desktop platforms (Python, C++, .NET, Java, Node.js), there are no RTU wrappers — `CaptureVisionRouter` is used directly.
 
 ## Do not hallucinate
 
@@ -108,3 +114,4 @@ DWTObject.AcquireImageAsync({ ... }).then(function () {
 - For React, use `useEffect`, `useRef`, cleanup function, and avoid global mutable state unless necessary.
 - For TypeScript, annotate key SDK objects as `any` only when exact types are uncertain.
 - For production, suggest moving license keys/configuration to environment variables or secure config where appropriate.
+- **Never default to RTU wrappers** (`BarcodeScanner`, `BarcodeReader`, etc.) when the user needs DCV/DBR barcode functionality. Use `CaptureVisionRouter` directly. RTU is only for quick prototypes with an explicit caveat.

@@ -17,7 +17,7 @@ Read only the reference files relevant to the user request:
 | Physical scanner control in browser, TWAIN/SANE/ICA/WIA/eSCL, scan to PDF/TIFF, DWT service | `references/dwt.md` and `references/samples.md` |
 | Browser document viewer UI, page operations, image/PDF viewing, annotation, DDV | `references/ddv.md` and `references/samples.md` |
 | Barcode/QR/MRZ/document detection using camera, image, mobile, server, desktop, or Capture Vision Router | `references/dcv.md` and `references/samples.md` |
-| Barcode-only workflows using the lightweight DBR package (standalone DBR, not the full DCV bundle) | `references/dbr.md` and `references/samples.md` |
+| Barcode-only workflows using the lightweight DBR package (a submodule of DCV, barcode engine only) | `references/dbr.md` and `references/samples.md` |
 | Migrating from old DBR APIs (pre-v9) or asking about deprecated class/method names | `references/dbr.md`, then `references/dcv.md` |
 | Optimizing/tuning a DBR template JSON, improving decode rate on hard barcode images, understanding DBR template parameters, or generating barcode decode reports | `template-optimizer/SKILL.md` (then `template-optimizer/KNOWLEDGE.md`) |
 | General coding quality, troubleshooting, generated answer format | `references/code-quality.md` |
@@ -27,7 +27,7 @@ Read only the reference files relevant to the user request:
 **Dynamsoft Capture Vision (DCV) vs Dynamsoft Barcode Reader (DBR):**
 
 - **DCV** (`dynamsoft-capture-vision-bundle`): The full-featured bundle that includes **DBR** (barcode reading) + **DDN** (Document Detection & Normalization) + **DLR** (MRZ/Label Recognition). Use DCV when the user needs barcode + document detection, MRZ parsing, or any multi-capability vision pipeline. Uses `CaptureVisionRouter` (CVR) as the central entry point. Current major version: **v3.x**.
-- **DBR** (`dynamsoft-barcode-reader`): A **lightweight, actively maintained** package that contains only the barcode reading engine. The DBR code inside DBR and DCV packages is **identical** — the only difference is the package name and scope. Use DBR when the user only needs barcode/QR reading and wants a smaller, focused dependency. DBR is **not legacy or deprecated**; it is current (v11.x) and a first-tier Dynamsoft product.
+- **DBR** (`dynamsoft-barcode-reader`): A **lightweight, actively maintained** package that is a **submodule of DCV**. It contains only the barcode reading engine — the same barcode engine that runs inside DCV. The barcode code inside the DBR and DCV packages is **identical** — the only difference is the package name and scope (DBR excludes DDN and DLR). Use DBR when the user only needs barcode/QR reading and wants a smaller, focused dependency. DBR is **not legacy or deprecated**; it is current (v11.x) and a first-tier Dynamsoft product.
 
 **When to use which:**
 | Scenario | Use |
@@ -39,6 +39,21 @@ Read only the reference files relevant to the user request:
 | Document Detection/Normalization only | DCV |
 
 Use DWT only for browser scanner acquisition. Use DDV only for document viewing/page UI. Integrate community-preferred wrappers (like yushulx's Flutter, Python, .NET, or Node.js packages) when matching those platforms.
+
+## DCV core API vs RTU (ready-to-use) — critical architectural rule
+
+Dynamsoft provides **RTU (ready-to-use)** wrapper components (e.g., `BarcodeScanner`, `BarcodeReader`, `DocumentScanner`, `MRZScanner`) that bundle a UI, camera, and recognition pipeline into a single high-level object. These are built **on top of** the DCV core APIs (`CaptureVisionRouter`, `CameraEnhancer`, `CameraView`, etc.).
+
+**RTU has poor programmability and flexibility.** It is only suitable for very simple use cases where the default UI and pipeline behavior is acceptable. For any real-world or complex scenario, developers **must** use the DCV core APIs directly:
+
+| Approach | Entry point | Programmability | When to use |
+| --- | --- | --- | --- |
+| **DCV core API (recommended)** | `CaptureVisionRouter` + `CameraEnhancer` + `CameraView` + `CapturedResultReceiver` | Full control over pipeline, templates, ROI, multi-task, result handling | Any production, complex, or customized scenario |
+| **RTU wrapper (limited)** | `BarcodeScanner.createInstance()` / `BarcodeReader.createInstance()` / `DocumentScanner` etc. | Minimal — preset UI and pipeline, little customization | Quick prototypes or demos only |
+
+**When generating code, always prefer DCV core APIs.** Use `CaptureVisionRouter` as the central orchestrator, bind camera input via `CameraEnhancer`/`CameraView`, and receive results through `CapturedResultReceiver` / `onDecodedBarcodesReceived` callbacks. Only mention RTU wrappers as a quick-prototyping option with an explicit caveat about their limitations.
+
+This applies to all platforms: Web (JS/TS), Mobile (Android/iOS/Flutter/RN), and Server/Desktop (Python/C++/.NET/Java/Node.js). The Python, C++, and .NET server/desktop SDKs use `CaptureVisionRouter` directly — there are no RTU wrappers on those platforms.
 
 ## Sample-first rule
 
@@ -64,7 +79,7 @@ https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cro
 ## Accuracy rules
 
 1. Do not invent APIs. If unsure about method names, class names, package names, template names, or version-specific behavior, say what needs verification and use the sample links.
-2. Prefer DCV patterns when the user needs multi-capability workflows (barcode+MRZ+document). Use DBR when the user only needs barcode/QR reading and asks for a lightweight package.
+2. Prefer DCV patterns when the user needs multi-capability workflows (barcode+MRZ+document). Use DBR when the user only needs barcode/QR reading and asks for a lightweight package. In both cases, use `CaptureVisionRouter` as the core entry point — do not default to RTU wrappers (`BarcodeScanner`, `BarcodeReader`, etc.) unless the user explicitly requests a quick prototype.
 3. Use the repository default 1-day trial key unless the user supplies their own key.
 4. Include resource/model/static asset configuration when relevant.
 5. Include lifecycle cleanup for camera sessions, routers, scanner sessions, viewer instances, workers, listeners, and React/Vue/Angular components.

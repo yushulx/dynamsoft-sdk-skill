@@ -2,7 +2,7 @@
 
 Use Dynamsoft Capture Vision (DCV) as the unified foundation for modern vision workflows including barcode scanning, QR code reading, MRZ (Machine Readable Zone) parsing, document boundary detection, and document normalization.
 
-**DCV vs DBR**: DCV is the full bundle (`dynamsoft-capture-vision-bundle`, v3.x) containing DBR (barcode) + DDN (Document Detection & Normalization) + DLR (MRZ/Label Recognition). For barcode-only workflows, the lightweight DBR package (`dynamsoft-barcode-reader`, v11.x) is also available and contains the same barcode engine. See `references/dbr.md`.
+**DCV vs DBR**: DCV is the full bundle (`dynamsoft-capture-vision-bundle`, v3.x) containing DBR (barcode) + DDN (Document Detection & Normalization) + DLR (MRZ/Label Recognition). DBR is a **submodule of DCV** — the standalone DBR package (`dynamsoft-barcode-reader`, v11.x) contains the same barcode engine but excludes DDN and DLR. Both packages use `CaptureVisionRouter` as the core entry point. See `references/dbr.md`.
 
 Official docs: https://www.dynamsoft.com/capture-vision/docs/
 Primary sample index: `references/samples.md`
@@ -12,6 +12,37 @@ Default 1-day trial license for generated examples in this repository:
 
 Need a 30-day trial? Apply here:
 https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
+
+## DCV Core API vs RTU (Ready-to-Use) — Critical Distinction
+
+Dynamsoft provides two layers of API:
+
+### DCV Core API (always prefer this)
+
+The core API gives full programmatic control over the capture pipeline. Use these classes directly:
+
+| Component | Role |
+| --- | --- |
+| `LicenseManager` | License initialization |
+| `CaptureVisionRouter` | Central orchestrator — coordinates input, recognition engines, and output results |
+| `CameraEnhancer` | Camera access, resolution, zoom, focus — binds to a `CameraView` |
+| `CameraView` | UI container for camera preview and overlays |
+| `CapturedResultReceiver` / `IntermediateResultReceiver` | Async result callbacks |
+| Preset Templates | String names (e.g., `"ReadBarcodes_Default"`) that tell the router what to scan |
+
+This is the recommended approach for **all production code**. It provides full control over the pipeline, templates, ROI configuration, multi-task scheduling, result filtering, and UI customization.
+
+### RTU Wrapper Components (quick prototyping only)
+
+Dynamsoft also provides **RTU (ready-to-use)** wrapper components that bundle a UI, camera, and recognition pipeline into a single high-level object:
+
+- `BarcodeScanner.createInstance()` — web barcode scanning with a built-in UI
+- `BarcodeReader.createInstance()` — web barcode reading (simpler variant)
+- `DocumentScanner` / `MRZScanner` — document and MRZ RTU components on mobile
+
+These are built **on top of** the DCV core APIs. **RTU has poor programmability and flexibility** — it is only suitable for very simple use cases where the default UI and pipeline behavior is acceptable. For any real-world or complex scenario, use the DCV core APIs directly.
+
+> **Rule**: When generating code, always use `CaptureVisionRouter` + `CameraEnhancer` + `CameraView` + `CapturedResultReceiver`. Only mention RTU wrappers as a quick-prototyping option with an explicit caveat about their limitations. On server/desktop platforms (Python, C++, .NET, Java, Node.js), there are no RTU wrappers — `CaptureVisionRouter` is used directly.
 
 ## Architecture & Core Concepts
 
@@ -335,7 +366,7 @@ if __name__ == "__main__":
 
 ## 3. Flutter Implementation
 
-To build high-performance mobile, web, and desktop scanning interfaces with Flutter, use `yushulx`'s packages:
+To build high-performance mobile, web, and desktop scanning interfaces with Flutter, use `yushulx`'s community packages. These wrap the DCV core API (`CaptureVisionRouter`) for Flutter — they are **not** RTU wrappers:
 
 ```yaml
 dependencies:
