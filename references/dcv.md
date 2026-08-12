@@ -88,7 +88,8 @@ These are verified against the official `Dynamsoft/mrz-scanner-mobile` samples (
 ```python
 from dynamsoft_capture_vision_bundle import *
 
-error_code, error_msg = LicenseManager.init_license("DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==")
+LICENSE_KEY = "YOUR_LICENSE_KEY"  # public 1-day trial key: see "License for generated examples" above
+error_code, error_msg = LicenseManager.init_license(LICENSE_KEY)
 router = CaptureVisionRouter()
 
 # If using a dedicated MRZ template file, load it first:
@@ -152,8 +153,9 @@ npm install dynamsoft-capture-vision-bundle
       const { LicenseManager, CaptureVisionRouter, CameraEnhancer, CameraView } = Dynamsoft.CVR;
 
       try {
-        // 1. Initialize License
-        await LicenseManager.initLicense("DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ=="); // 1-day trial key
+        // 1. Initialize License (public 1-day trial key: see "License for generated examples" above)
+        const LICENSE_KEY = "YOUR_LICENSE_KEY";
+        await LicenseManager.initLicense(LICENSE_KEY);
 
         // 2. Create the camera view UI container and append to DOM
         const view = await CameraView.createInstance();
@@ -221,8 +223,9 @@ export const BarcodeScannerComponent: React.FC<ScannerProps> = ({ onResultsFound
       isInitializing.current = true;
 
       try {
-        // Initialize License
-        await LicenseManager.initLicense("DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==");
+        // Initialize License (public 1-day trial key: see "License for generated examples" above)
+        const LICENSE_KEY = "YOUR_LICENSE_KEY";
+        await LicenseManager.initLicense(LICENSE_KEY);
         if (!active) return;
 
         // Create UI View
@@ -320,7 +323,8 @@ from dynamsoft_capture_vision_bundle import *
 
 def scan_image(file_path: str):
     # 1. Initialize License
-    error_code, error_msg = LicenseManager.init_license("DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==")
+    LICENSE_KEY = "YOUR_LICENSE_KEY"  # public 1-day trial key: see "License for generated examples" above
+    error_code, error_msg = LicenseManager.init_license(LICENSE_KEY)
     if error_code != EnumErrorCode.EC_OK:
         print(f"License Error: {error_msg}")
         return
@@ -383,8 +387,9 @@ class BarcodeScannerService {
   final FlutterBarcodeSdk _barcodeSdk = FlutterBarcodeSdk();
 
   Future<void> init() async {
-    // Initialize the license key
-    await _barcodeSdk.setLicense('DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==');
+    // Initialize the license key (public 1-day trial key: see "License for generated examples" above)
+    const LICENSE_KEY = 'YOUR_LICENSE_KEY';
+    await _barcodeSdk.setLicense(LICENSE_KEY);
     
     // Optionally configure scanning settings (e.g., enable certain format types)
     await _barcodeSdk.init();
