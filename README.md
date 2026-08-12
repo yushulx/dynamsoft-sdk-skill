@@ -33,6 +33,7 @@ dynamsoft-sdk-skill/
 │   ├── dwt.md               # Dynamic Web TWAIN (Browser scanner acquisition)
 │   ├── ddv.md               # Dynamsoft Document Viewer (Web viewing & page UI)
 │   ├── code-quality.md      # Code quality rules & validation checklist
+│   ├── migration.md         # ZXing / ML Kit / Scandit → Dynamsoft migration playbooks
 │   ├── dbr-web.md           # DBR web-specific redirect
 │   ├── dbr-mobile.md        # DBR mobile-specific redirect
 │   └── dbr-server-desktop.md # DBR server/desktop-specific redirect

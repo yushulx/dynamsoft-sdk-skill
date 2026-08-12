@@ -19,6 +19,7 @@ Read only the reference files relevant to the user request:
 | Barcode/QR/MRZ/document detection using camera, image, mobile, server, desktop, or Capture Vision Router | `references/dcv.md` and `references/samples.md` |
 | Barcode-only workflows using the lightweight DBR package (a submodule of DCV, barcode engine only) | `references/dbr.md` and `references/samples.md` |
 | Migrating from old DBR APIs (pre-v9) or asking about deprecated class/method names | `references/dbr.md`, then `references/dcv.md` |
+| Replacing ZXing, ML Kit, or Scandit with Dynamsoft ("migrate/switch/replace barcode library") | `references/migration.md`, then the target product's reference file |
 | Optimizing/tuning a DBR template JSON, improving decode rate on hard barcode images, understanding DBR template parameters, or generating barcode decode reports | `template-optimizer/SKILL.md` (then `template-optimizer/KNOWLEDGE.md`) |
 | General coding quality, troubleshooting, generated answer format | `references/code-quality.md` |
 
