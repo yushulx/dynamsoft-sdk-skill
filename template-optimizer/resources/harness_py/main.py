@@ -35,7 +35,13 @@ import sys
 import tempfile
 import time
 
-TRIAL_LICENSE = "DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ=="
+LICENSE_HELP = (
+    "Provide a Dynamsoft license key via --license or the DYNAMSOFT_LICENSE_KEY "
+    "environment variable. Public 1-day trial key: fetch the contents of "
+    "https://raw.githubusercontent.com/yushulx/cmake-cpp-barcode-qrcode-mrz/main/license-key.txt . "
+    "30-day trial: "
+    "https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform"
+)
 EMBED_SIZE_THRESHOLD = 20 * 1024 * 1024  # 20 MB
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff", ".gif", ".heic", ".heif"}
 DEFAULT_TEMPLATE  = "ReadBarcodes_Default"
@@ -138,6 +144,13 @@ def dump_default_template(router, output_path):
 # ---------------------------------------------------------------------------
 # Core logic
 # ---------------------------------------------------------------------------
+
+def resolve_license(args):
+    key = getattr(args, "license", None) or os.environ.get("DYNAMSOFT_LICENSE_KEY")
+    if not key:
+        sys.exit("ERROR: No license key provided. " + LICENSE_HELP)
+    return key
+
 
 def init_license(LicenseManager, key):
     error_code, error_message = LicenseManager.init_license(key)
@@ -307,7 +320,7 @@ def build_result(template_file, image_dir, per_image, total_decoded, ground_trut
 # ---------------------------------------------------------------------------
 
 def cmd_dump(args, CaptureVisionRouter, LicenseManager):
-    init_license(LicenseManager, args.license or TRIAL_LICENSE)
+    init_license(LicenseManager, resolve_license(args))
     router = CaptureVisionRouter()
     try:
         dump_default_template(router, args.dump_default_template)
@@ -318,7 +331,7 @@ def cmd_dump(args, CaptureVisionRouter, LicenseManager):
 
 def cmd_run(args, CaptureVisionRouter, LicenseManager):
     # License
-    init_license(LicenseManager, args.license or TRIAL_LICENSE)
+    init_license(LicenseManager, resolve_license(args))
     router = CaptureVisionRouter()
 
     # Load template — use provided file, or fall back to bundled preset
@@ -388,7 +401,7 @@ def main():
     p = argparse.ArgumentParser(description="DBR template test harness — Python edition")
     p.add_argument("--template",     help="Path to template JSON file")
     p.add_argument("--images",       help="Directory of barcode images")
-    p.add_argument("--license",      help="Dynamsoft license key (defaults to trial key)")
+    p.add_argument("--license",      help="Dynamsoft license key (or set DYNAMSOFT_LICENSE_KEY)")
     p.add_argument("--ground-truth", metavar="FILE",
                    help="JSON mapping filename → expected barcode texts")
     p.add_argument("--output",        help="Write results JSON to this file (default: stdout)")

@@ -29,7 +29,7 @@ When uncertain, prefer one of these safe patterns:
 
 For SDK setup code, include:
 
-- License initialization with the repository default 1-day trial key unless the user provides their own key.
+- License initialization with the user's own key when provided, otherwise the current public 1-day trial key (see below).
 - Resource path or model path configuration when needed.
 - Async initialization and error handling.
 - Cleanup/dispose/destroy behavior for UI components, camera sessions, scanner sessions, router instances, and listeners.
@@ -37,9 +37,9 @@ For SDK setup code, include:
 - Local HTTPS requirement if browser camera APIs are involved.
 - Static asset copy instructions for wasm, worker, model, resources, or service files when relevant.
 
-Default trial key:
-
-`DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==`
+Default trial key: fetch the current public 1-day trial key from
+https://raw.githubusercontent.com/yushulx/cmake-cpp-barcode-qrcode-mrz/main/license-key.txt
+Never hardcode a license key literal into this repository or generated files.
 
 30-day trial application:
 

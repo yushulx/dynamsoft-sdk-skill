@@ -8,11 +8,13 @@ An expert-grade AI Agent Skill for generating and reviewing accurate, high-perfo
 
 Dynamsoft SDKs (Capture Vision, Barcode Reader, Web TWAIN, Document Viewer) undergo rapid evolution. This skill ensures that AI assistants generate up-to-date, version-safe code, specifically focusing on the unified **Dynamsoft Capture Vision (DCV)** framework and the lightweight **Dynamsoft Barcode Reader (DBR)** package for barcode-only workflows.
 
-## Default Trial License for Generated Code
+## Trial License for Generated Code
 
-When this skill generates Dynamsoft SDK code, it should use this default 1-day trial license unless the user provides a different key:
+When this skill generates Dynamsoft SDK code, it uses the user's own license key when provided. Otherwise, it fetches the current public 1-day trial key from:
 
-`DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==`
+https://raw.githubusercontent.com/yushulx/cmake-cpp-barcode-qrcode-mrz/main/license-key.txt
+
+No license key is hardcoded in this repository.
 
 For a 30-day trial license, apply here:
 

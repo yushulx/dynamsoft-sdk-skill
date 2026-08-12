@@ -67,15 +67,19 @@ Before generating code, identify the closest sample category in `references/samp
 
 When a sample link is available, tell the user which sample family the code is based on. If exact API names are uncertain for the user's version, provide a skeleton and point to the relevant sample instead of inventing calls.
 
-## License default for generated code
+## License for generated code
 
-Use this default 1-day trial license when generating **DCV / DBR / DDV** code snippets unless the user provides their own key. It is a DLS license key — it does **not** apply to DWT (Dynamic Web TWAIN uses its own `ProductKey` mechanism; leave `YOUR-PRODUCT-KEY` as a placeholder there):
+When generating **DCV / DBR / DDV** code snippets, use the user's own license key when provided. Otherwise, fetch the current public 1-day trial key from:
 
-`DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==`
+https://raw.githubusercontent.com/yushulx/cmake-cpp-barcode-qrcode-mrz/main/license-key.txt
+
+Never hardcode a license key literal into this repository or into generated project files.
 
 If the user needs a 30-day trial license, use:
 
 https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
+
+This license guidance applies to DCV / DBR / DDV only — DWT (Dynamic Web TWAIN) uses its own `ProductKey` mechanism; leave `YOUR-PRODUCT-KEY` as a placeholder there.
 
 ## Accuracy rules
 
