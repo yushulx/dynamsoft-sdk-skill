@@ -508,7 +508,7 @@ function lbOpen(imgSrc, polygonsSvg, filename, naturalW, naturalH, barcodes, sta
   }
 
   const wrap = document.getElementById('lb-img-wrap');
-  wrap.innerHTML = `<img id="lb-img" src="${imgSrc}" alt=""><svg id="lb-svg" class="overlay">${polygonsSvg}</svg>`;
+  wrap.innerHTML = `<img id="lb-img" src="${escapeAttr(imgSrc)}" alt=""><svg id="lb-svg" class="overlay">${polygonsSvg}</svg>`;
 
   const img = document.getElementById('lb-img');
   const svg = document.getElementById('lb-svg');
@@ -709,16 +709,16 @@ function renderGrid(filter) {
 
     return `
       <div class="image-card ${ok ? 'decoded' : 'failed'}">
-        <div class="img-container" data-lb-key="${stableKey}" title="Click to enlarge">
+        <div class="img-container" data-lb-key="${escapeAttr(stableKey)}" title="Click to enlarge">
           <div class="img-wrapper">
-            <img src="${imgSrc}" loading="lazy"
+            <img src="${escapeAttr(imgSrc)}" loading="lazy"
               onload="var s=this.parentElement.querySelector('svg.overlay'); if(s) s.setAttribute('viewBox','0 0 '+this.naturalWidth+' '+this.naturalHeight);"
               onerror="this.alt='Image not found'; this.style.padding='40px';">
             ${svgOverlay}
           </div>
         </div>
         <div class="info">
-          <div class="filename">${img.file}</div>
+          <div class="filename">${escapeHtml(img.file)}</div>
           <div class="status ${ok ? 'ok' : 'fail'}">${ok ? 'DECODED' : 'FAILED'} <span class="time-info">(${img.time_ms.toFixed(0)}ms)</span></div>
           ${ok ? `<details class="image-details"><summary>Barcode details</summary><div class="barcode-detail">${barcodeHtml}</div></details>` : ''}
         </div>
@@ -747,6 +747,12 @@ document.getElementById('grid').addEventListener('click', e => {
   lbOpen(imgSrc, d.polygons, d.filename, nw, nh, d.barcodes, storeKey);
 });
 
+// NOTE: image filenames, decoded barcode text, and ground-truth content are
+// untrusted external input. Always escape them before inserting into HTML
+// (escapeHtml for text nodes, escapeAttr for attribute values).
+function escapeAttr(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 function escapeHtml(s) {
   const div = document.createElement('div');
   div.textContent = s;

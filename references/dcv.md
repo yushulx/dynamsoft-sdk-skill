@@ -7,8 +7,8 @@ Use Dynamsoft Capture Vision (DCV) as the unified foundation for modern vision w
 Official docs: https://www.dynamsoft.com/capture-vision/docs/
 Primary sample index: `references/samples.md`
 
-Default 1-day trial license for generated examples in this repository:
-`YOUR_LICENSE_KEY`
+License for generated examples in this repository: use the user's own key when provided, otherwise fetch the current public 1-day trial key from
+https://raw.githubusercontent.com/yushulx/cmake-cpp-barcode-qrcode-mrz/main/license-key.txt
 
 Need a 30-day trial? Apply here:
 https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
