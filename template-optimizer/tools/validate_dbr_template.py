@@ -20,7 +20,6 @@ def parse_args():
     parser.add_argument("image", help="Path to the image to decode")
     parser.add_argument(
         "--template-file",
-        "--template-fie",
         "--template",
         dest="template_file",
         help="Path to a DBR JSON template file. Omit to use the built-in PT_READ_BARCODES preset.",

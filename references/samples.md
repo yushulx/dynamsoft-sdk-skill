@@ -37,6 +37,7 @@ Use DCV samples for modern barcode, QR, MRZ, document detection, document normal
   - Use this first when the user asks for browser/web code that combines barcode, MRZ, and document detection. Excellent for DCV-style multi-result parsing and camera-based web workflow.
 - **Official JS Barcode Samples**: https://github.com/Dynamsoft/barcode-reader-javascript-samples
 - **Official MRZ Scanner JS Sample**: https://github.com/Dynamsoft/mrz-scanner-javascript
+- **Official MRZ Scanner Mobile Samples (Android/iOS)**: https://github.com/Dynamsoft/mrz-scanner-mobile
 - **Official Document Scanner JS Sample**: https://github.com/Dynamsoft/document-scanner-javascript
   - Camera-based document detection, edge detection, and document capture UI.
 

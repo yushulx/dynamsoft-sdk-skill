@@ -1,6 +1,6 @@
 ---
 name: dynamsoft-sdk
-description: generate and review accurate code for dynamsoft sdks using sample-first guidance. covers dynamic web twain (dwt), dynamsoft document viewer (ddv), dynamsoft barcode reader (dbr), and dynamsoft capture vision (dcv) for barcode, qr code, mrz, document detection/normalization, mobile, web, server, and desktop workflows. also includes a template-optimizer sub-skill for tuning dbr template json to maximize decode rates on difficult barcode images. use when the user asks for dynamsoft sdk integration, sample code, troubleshooting, migration, api usage, project setup, framework examples, scanner capture, document viewing, barcode/mrz/document capture, capture vision router workflows, or barcode template tuning/optimization.
+description: Generate and review accurate code for Dynamsoft SDKs — Dynamic Web TWAIN (DWT), Document Viewer (DDV), Barcode Reader (DBR), and Capture Vision (DCV) — using sample-first guidance for barcode, QR, MRZ, and document capture across web, mobile, server, and desktop. Includes a template-optimizer sub-skill for tuning DBR template JSON to maximize decode rates. Use for Dynamsoft SDK integration, sample code, migration, API usage, troubleshooting, CaptureVisionRouter workflows, or barcode template tuning.
 ---
 
 # Dynamsoft SDK
@@ -27,7 +27,7 @@ Read only the reference files relevant to the user request:
 **Dynamsoft Capture Vision (DCV) vs Dynamsoft Barcode Reader (DBR):**
 
 - **DCV** (`dynamsoft-capture-vision-bundle`): The full-featured bundle that includes **DBR** (barcode reading) + **DDN** (Document Detection & Normalization) + **DLR** (MRZ/Label Recognition). Use DCV when the user needs barcode + document detection, MRZ parsing, or any multi-capability vision pipeline. Uses `CaptureVisionRouter` (CVR) as the central entry point. Current major version: **v3.x**.
-- **DBR** (`dynamsoft-barcode-reader`): A **lightweight, actively maintained** package that is a **submodule of DCV**. It contains only the barcode reading engine — the same barcode engine that runs inside DCV. The barcode code inside the DBR and DCV packages is **identical** — the only difference is the package name and scope (DBR excludes DDN and DLR). Use DBR when the user only needs barcode/QR reading and wants a smaller, focused dependency. DBR is **not legacy or deprecated**; it is current (v11.x) and a first-tier Dynamsoft product.
+- **DBR** (`dynamsoft-barcode-reader-bundle`): A **lightweight, actively maintained** package that is a **submodule of DCV**. It contains only the barcode reading engine — the same barcode engine that runs inside DCV. The barcode code inside the DBR and DCV packages is **identical** — the only difference is the package name and scope (DBR excludes DDN and DLR). Use DBR when the user only needs barcode/QR reading and wants a smaller, focused dependency. DBR is **not legacy or deprecated**; it is current (v11.x) and a first-tier Dynamsoft product.
 
 **When to use which:**
 | Scenario | Use |
@@ -68,7 +68,7 @@ When a sample link is available, tell the user which sample family the code is b
 
 ## License default for generated code
 
-Use this default 1-day trial license when generating Dynamsoft SDK code snippets unless the user provides their own key:
+Use this default 1-day trial license when generating **DCV / DBR / DDV** code snippets unless the user provides their own key. It is a DLS license key — it does **not** apply to DWT (Dynamic Web TWAIN uses its own `ProductKey` mechanism; leave `YOUR-PRODUCT-KEY` as a placeholder there):
 
 `DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==`
 
@@ -106,7 +106,7 @@ When the user wants to **tune a barcode reading template**, **improve decode rat
 
 1. Read `template-optimizer/SKILL.md` and follow its mode selection (Optimize / Educate / Report).
 2. Read `template-optimizer/KNOWLEDGE.md` for the parameter reference and proven optimization order before editing any template.
-3. Use the bundled helper tools under `template-optimizer/tools/` for single-image triage (`validate_dbr_template.py`, `probe_dbr_templates.py`, `compare_dbr_template_profiles.py`) and `template-optimizer/resources/harness_py/main.py` for dataset benchmarking.
+3. Use the bundled helper tools under `template-optimizer/tools/` for single-image triage (`validate_dbr_template.py`, `probe_dbr_templates.py`, `compare_dbr_template_profiles.py`) and `template-optimizer/resources/harness_py/main.py` for dataset benchmarking. Specialized recovery scripts (`recover_difficult_qr.py`, `recover_fluorescent_postal.py`) handle hard QR and fluorescent postal barcode cases.
 4. Treat `template-optimizer/` as `SKILL_DIR` when following that sub-skill's instructions.
 
 This sub-skill is Python-only and depends on `dynamsoft-capture-vision-bundle` (see `template-optimizer/requirements.txt`).

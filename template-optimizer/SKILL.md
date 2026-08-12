@@ -60,6 +60,8 @@ SKILL_DIR/
    tools/probe_dbr_templates.py
    tools/compare_dbr_template_profiles.py
    tools/dbr_license.py
+   tools/recover_difficult_qr.py
+   tools/recover_fluorescent_postal.py
    resources/harness_py/main.py
    resources/harness_py/requirements.txt
    resources/report/report_template.html
@@ -112,7 +114,7 @@ Optimization has two tracks:
 
 ### Step 0 — Gather Information
 
-Ask the user for the following. Use the `AskUserQuestion` tool for structured choices where applicable.
+Ask the user for the following. Use your agent's structured-question tool (e.g., `AskUserQuestion` in Claude Code) where applicable — tool names are agent-specific; adapt to your agent's equivalents.
 
 | Parameter | Required | Default | Notes |
 | --- | --- | --- | --- |
