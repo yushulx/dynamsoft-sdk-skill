@@ -13,6 +13,6 @@ On server/desktop platforms (Python, C++, .NET, Java, Node.js), there are **no R
 - `router.capture(file_path, template_name)` — process an image with a preset template
 - `result.get_decoded_barcodes_result().get_items()` — extract barcode results
 
-The Python barcode scanning pattern in `references/dcv.md` applies equally to DBR — just change the import from `dynamsoft-capture-vision-bundle` to `dynamsoft-barcode-reader`.
+The Python barcode scanning pattern in `references/dcv.md` applies equally to DBR — just change the import from `dynamsoft-capture-vision-bundle` to `dynamsoft-barcode-reader-bundle`.
 
 For sample code, always check `references/samples.md` first.

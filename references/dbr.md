@@ -8,7 +8,7 @@ DBR is a **submodule of Dynamsoft Capture Vision (DCV)**. The standalone DBR pac
 
 | Package | NPM/Pip package | Contains | Use case |
 | --- | --- | --- | --- |
-| **DBR** | `dynamsoft-barcode-reader` | Barcode/QR reading only (excludes DDN and DLR) | Barcode-only projects, smaller footprint |
+| **DBR** | `dynamsoft-barcode-reader-bundle` | Barcode/QR reading only (excludes DDN and DLR) | Barcode-only projects, smaller footprint |
 | **DCV** | `dynamsoft-capture-vision-bundle` | DBR + DDN (Document Detection/Normalization) + DLR (MRZ/Label Recognition) | Multi-capability vision pipelines |
 
 Both packages use the same `CaptureVisionRouter` core API for barcode reading. Code written for DCV barcode reading works identically with the DBR package (just change the import/package name).
@@ -35,15 +35,17 @@ Use DCV when:
 | **DCV/DBR core API (recommended)** | `CaptureVisionRouter` + `CameraEnhancer` + `CameraView` + `CapturedResultReceiver` | Full control over pipeline, templates, ROI, multi-task, result handling | Any production, complex, or customized scenario |
 | **RTU wrapper (limited)** | `BarcodeScanner.createInstance()` / `BarcodeReader.createInstance()` | Minimal — preset UI and pipeline, little customization | Quick prototypes or demos only |
 
-For the full DCV core API patterns (web HTML, React, Python, Flutter), see `references/dcv.md`. The code patterns there apply equally to DBR — just change the package import from `dynamsoft-capture-vision-bundle` to `dynamsoft-barcode-reader` (where applicable on web/mobile).
+For the full DCV core API patterns (web HTML, React, Python, Flutter), see `references/dcv.md`. The code patterns there apply equally to DBR — just change the package import from `dynamsoft-capture-vision-bundle` to `dynamsoft-barcode-reader-bundle` (where applicable on web/mobile).
 
 ## Web (JavaScript / TypeScript)
 
 ```bash
-npm install dynamsoft-barcode-reader
+npm install dynamsoft-barcode-reader-bundle
 ```
 
-The web DBR package exposes `CaptureVisionRouter`, `CameraEnhancer`, `CameraView`, and `LicenseManager` — the same core classes as the DCV bundle. Use the same patterns documented in `references/dcv.md` (HTML+CDN scanner, React hooks, etc.). Just import from `dynamsoft-barcode-reader` instead of `dynamsoft-capture-vision-bundle`.
+> **Note**: The legacy `dynamsoft-barcode-reader` npm package stopped at v10.x. The current v11.x barcode-only web package is `dynamsoft-barcode-reader-bundle` — always install this one.
+
+The web DBR package exposes `CaptureVisionRouter`, `CameraEnhancer`, `CameraView`, and `LicenseManager` — the same core classes as the DCV bundle. Use the same patterns documented in `references/dcv.md` (HTML+CDN scanner, React hooks, etc.). Just import from `dynamsoft-barcode-reader-bundle` instead of `dynamsoft-capture-vision-bundle`.
 
 > **Do not default to `BarcodeScanner.createInstance()` or `BarcodeReader.createInstance()`** — these are RTU wrappers with limited customization. Use `CaptureVisionRouter` directly for any production code.
 
@@ -54,7 +56,7 @@ Refer to official samples for the latest DBR web patterns:
 ## Server / Desktop (Python, C++, .NET, Java, Node.js)
 
 ```bash
-pip install dynamsoft-barcode-reader  # Python example
+pip install dynamsoft-barcode-reader-bundle  # Python example
 ```
 
 On server/desktop platforms, there are **no RTU wrappers** — `CaptureVisionRouter` is used directly. The Python DBR package provides `CaptureVisionRouter.capture()` with the same API as the DCV bundle. See `references/dcv.md` for the Python barcode scanning pattern.

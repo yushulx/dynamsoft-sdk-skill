@@ -14,6 +14,6 @@ Instead, always use the DCV core API directly:
 - `CapturedResultReceiver` — async result callbacks
 - Preset template strings (e.g., `"ReadBarcodes_Default"`) — pipeline configuration
 
-The full web patterns (HTML+CDN, React hooks, TypeScript) are in `references/dcv.md`. They apply equally to DBR — just change the import from `dynamsoft-capture-vision-bundle` to `dynamsoft-barcode-reader`.
+The full web patterns (HTML+CDN, React hooks, TypeScript) are in `references/dcv.md`. They apply equally to DBR — just change the import from `dynamsoft-capture-vision-bundle` to `dynamsoft-barcode-reader-bundle`.
 
 For sample code, always check `references/samples.md` first.

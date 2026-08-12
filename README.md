@@ -21,7 +21,7 @@ https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cro
 The repository is structured as a modular knowledge base for easy indexing and routing:
 
 ```text
-D:\code\dynamsoft-sdk-skill\
+dynamsoft-sdk-skill/
 ├── SKILL.md                 # Main agent routing and behavior mandates
 ├── README.md                # Skill overview and developer guide
 ├── references/

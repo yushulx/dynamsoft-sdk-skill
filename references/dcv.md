@@ -2,7 +2,7 @@
 
 Use Dynamsoft Capture Vision (DCV) as the unified foundation for modern vision workflows including barcode scanning, QR code reading, MRZ (Machine Readable Zone) parsing, document boundary detection, and document normalization.
 
-**DCV vs DBR**: DCV is the full bundle (`dynamsoft-capture-vision-bundle`, v3.x) containing DBR (barcode) + DDN (Document Detection & Normalization) + DLR (MRZ/Label Recognition). DBR is a **submodule of DCV** — the standalone DBR package (`dynamsoft-barcode-reader`, v11.x) contains the same barcode engine but excludes DDN and DLR. Both packages use `CaptureVisionRouter` as the core entry point. See `references/dbr.md`.
+**DCV vs DBR**: DCV is the full bundle (`dynamsoft-capture-vision-bundle`, v3.x) containing DBR (barcode) + DDN (Document Detection & Normalization) + DLR (MRZ/Label Recognition). DBR is a **submodule of DCV** — the standalone DBR package (`dynamsoft-barcode-reader-bundle`, v11.x) contains the same barcode engine but excludes DDN and DLR. Both packages use `CaptureVisionRouter` as the core entry point. See `references/dbr.md`.
 
 Official docs: https://www.dynamsoft.com/capture-vision/docs/
 Primary sample index: `references/samples.md`
@@ -123,7 +123,7 @@ npm install dynamsoft-capture-vision-bundle
   <meta charset="UTF-8">
   <title>Real-Time Barcode Scanner</title>
   <!-- Load the unified Dynamsoft Capture Vision Bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/dynamsoft-capture-vision-bundle@3.4.2001/dist/dcv.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dynamsoft-capture-vision-bundle@3.4.3000/dist/dcv.bundle.min.js"></script>
   <style>
     #camera-container {
       width: 100%;

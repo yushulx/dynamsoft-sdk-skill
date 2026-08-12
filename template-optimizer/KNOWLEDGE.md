@@ -4,7 +4,7 @@
 > It grows with each optimization run and community verification. Contributions from Dynamsoft
 > engineers are especially welcome to verify accuracy and fill gaps.
 >
-> **Last verified against official docs**: 2026-02-18
+> **Last verified against official docs**: 2026-02-18 (parameter reference sections; later test-run logs are dated inline)
 
 ## Template JSON Architecture (DCV v3.x)
 
@@ -532,34 +532,6 @@ Images: Mobile phone boxes (Samsung, iPhone, Oppo, Honor) stacked on warehouse s
 
 **Critical finding: SDK version matters enormously.** The Python SDK `dynamsoft-capture-vision-bundle` v3.0.6000 could not decode 4 of 12 images at all, and `LM_NEURAL_NETWORK` / `DM_NEURAL_NETWORK` modes caused the SDK to silently return 0 results. Upgrading to v3.4.2000 solved all failures with the default template alone.
 
----
-
-## Barcode + OCR Scenario: Combined Template With Barcode-Referenced OCR
-
-When the page layout is stable, keep barcode decode and OCR in **one capture template**. For the verified page-number case, the decisive lesson was the combined-template structure: barcode decode plus text recognition whose ROI is derived from the barcode result.
-
-The earlier Python workaround overstated the role of manual upscale. In this scenario, the real requirement was correct template wiring plus a stable capture path.
-
-Template traits that mattered:
-
-- `CaptureVisionTemplates[].Name` must be used exactly at runtime.
-- `TargetROIDefOptions` for OCR must reference the barcode result through `ReferenceObjectFilter: ART_BARCODE` and a valid `ReferenceObjectOriginIndex`.
-- One capture should return both barcode and OCR results; consumers can fan them out through callbacks after parsing the single capture result.
-
-Practical playbook:
-
-1. If no template is provided, generate a focused combined template first: one barcode task, one OCR task, and barcode-referenced OCR ROI.
-2. Match the intended capture path first. In the verified page-number case, raw file-based `capture_multi_pages(...)` on the original image was sufficient and manual upscaling was unnecessary.
-3. Keep barcode and OCR in the same capture pass; do not split them into separate heuristic crops unless the primary path fails.
-4. Keep post-processing minimal: when the template already constrains OCR to numeric page-number output, consume the recognized text directly, without page-number length heuristics, numeric caps, or coercions such as `161 -> 16`.
-5. Only try preprocessing after raw capture, exact template name, and barcode-referenced OCR wiring have all been confirmed.
-
-Observed evidence on the verified sample page image:
-
-- A correctly wired combined template decoded raw input through file-based capture, returning barcode `CBSE` and OCR `16`.
-- The earlier `nearest_4x` rescue came from a different Python capture path and should not be generalized as a requirement of this scenario.
-- The portable lesson is: **combined template + exact template name + barcode-referenced OCR ROI + stable capture API** before any upscale or OCR heuristics.
-
 | Iteration | SDK | Changes | Images | Barcodes | Delta |
 |-----------|-----|---------|--------|----------|-------|
 | Baseline (v3.0) | 3.0.6000 | Default template | 8/12 (67%) | 58 | — |
@@ -618,6 +590,34 @@ Same 12 warehouse images as Test run 3. A Dynamsoft engineer created a purpose-b
 7. **Template schema Version 5.1** — The engineer used the v5.1 template schema which specifies all image processing stages explicitly in `ImageParameterOptions.ApplicableStages`, including SST_INPUT_COLOR_IMAGE, SST_SCALE_IMAGE, SST_CONVERT_TO_GRAYSCALE, SST_TRANSFORM_GRAYSCALE, SST_ENHANCE_GRAYSCALE, SST_BINARIZE_IMAGE, SST_DETECT_TEXTURE, SST_REMOVE_TEXTURE_FROM_GRAYSCALE, SST_BINARIZE_TEXTURE_REMOVED_GRAYSCALE, SST_FIND_CONTOURS, SST_DETECT_SHORTLINES, SST_ASSEMBLE_LINES, SST_DETECT_TEXT_ZONES, SST_REMOVE_TEXT_ZONES_FROM_BINARY. This gives complete control over the entire image processing pipeline.
 
 **Updated optimization strategy: When the customer knows what barcode format and text pattern they need, start with a focused template (single format + regex) rather than a kitchen-sink approach. Reserve the kitchen-sink approach for exploratory/unknown cases.**
+
+---
+
+## Barcode + OCR Scenario: Combined Template With Barcode-Referenced OCR
+
+When the page layout is stable, keep barcode decode and OCR in **one capture template**. For the verified page-number case, the decisive lesson was the combined-template structure: barcode decode plus text recognition whose ROI is derived from the barcode result.
+
+The earlier Python workaround overstated the role of manual upscale. In this scenario, the real requirement was correct template wiring plus a stable capture path.
+
+Template traits that mattered:
+
+- `CaptureVisionTemplates[].Name` must be used exactly at runtime.
+- `TargetROIDefOptions` for OCR must reference the barcode result through `ReferenceObjectFilter: ART_BARCODE` and a valid `ReferenceObjectOriginIndex`.
+- One capture should return both barcode and OCR results; consumers can fan them out through callbacks after parsing the single capture result.
+
+Practical playbook:
+
+1. If no template is provided, generate a focused combined template first: one barcode task, one OCR task, and barcode-referenced OCR ROI.
+2. Match the intended capture path first. In the verified page-number case, raw file-based `capture_multi_pages(...)` on the original image was sufficient and manual upscaling was unnecessary.
+3. Keep barcode and OCR in the same capture pass; do not split them into separate heuristic crops unless the primary path fails.
+4. Keep post-processing minimal: when the template already constrains OCR to numeric page-number output, consume the recognized text directly, without page-number length heuristics, numeric caps, or coercions such as `161 -> 16`.
+5. Only try preprocessing after raw capture, exact template name, and barcode-referenced OCR wiring have all been confirmed.
+
+Observed evidence on the verified sample page image:
+
+- A correctly wired combined template decoded raw input through file-based capture, returning barcode `CBSE` and OCR `16`.
+- The earlier `nearest_4x` rescue came from a different Python capture path and should not be generalized as a requirement of this scenario.
+- The portable lesson is: **combined template + exact template name + barcode-referenced OCR ROI + stable capture API** before any upscale or OCR heuristics.
 
 ### Common Failure Patterns
 
