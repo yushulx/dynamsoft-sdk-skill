@@ -2,14 +2,15 @@ import os
 
 try:
     from dynamsoft_capture_vision_bundle import EnumErrorCode, LicenseManager
-except ImportError:
-    from dynamsoft_barcode_reader_bundle import EnumErrorCode, LicenseManager
+except ImportError as exc:
+    raise SystemExit(
+        "[DBR] The 'dynamsoft-capture-vision-bundle' package is required. "
+        "Install it with: pip install dynamsoft-capture-vision-bundle"
+    ) from exc
 
 
 LICENSE_HELP = (
     "Set the DYNAMSOFT_LICENSE_KEY environment variable to your Dynamsoft license key. "
-    "Public 1-day trial key: fetch the contents of "
-    "https://raw.githubusercontent.com/yushulx/cmake-cpp-barcode-qrcode-mrz/main/license-key.txt . "
     "30-day trial: "
     "https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform"
 )
@@ -29,6 +30,8 @@ def ensure_dbr_license():
 
     err, msg = LicenseManager.init_license(key)
     if err not in (EnumErrorCode.EC_OK, EnumErrorCode.EC_LICENSE_CACHE_USED):
-        raise SystemExit(f"[DBR] License initialization failed: {msg}")
+        # Log only the error code — the message text may contain licensing
+        # diagnostics that should not be echoed to stdout.
+        raise SystemExit(f"[DBR] License initialization failed (error code {err}). " + LICENSE_HELP)
 
     _LICENSE_READY = True

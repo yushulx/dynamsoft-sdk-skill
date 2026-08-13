@@ -7,10 +7,9 @@ Use Dynamsoft Capture Vision (DCV) as the unified foundation for modern vision w
 Official docs: https://www.dynamsoft.com/capture-vision/docs/
 Primary sample index: `references/samples.md`
 
-License for generated examples in this repository: use the user's own key when provided, otherwise fetch the current public 1-day trial key from
-https://raw.githubusercontent.com/yushulx/cmake-cpp-barcode-qrcode-mrz/main/license-key.txt
+License for generated examples in this repository: always use the user's own key when provided.
 
-Need a 30-day trial? Apply here:
+Need a trial license? Apply here:
 https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
 
 ## DCV Core API vs RTU (Ready-to-Use) — Critical Distinction

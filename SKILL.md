@@ -69,13 +69,9 @@ When a sample link is available, tell the user which sample family the code is b
 
 ## License for generated code
 
-When generating **DCV / DBR / DDV** code snippets, use the user's own license key when provided. Otherwise, fetch the current public 1-day trial key from:
+When generating **DCV / DBR / DDV** code snippets, always use the user's own license key when provided. Never hardcode a license key literal into this repository or into generated project files.
 
-https://raw.githubusercontent.com/yushulx/cmake-cpp-barcode-qrcode-mrz/main/license-key.txt
-
-Never hardcode a license key literal into this repository or into generated project files.
-
-If the user needs a 30-day trial license, use:
+If the user needs a trial license, use:
 
 https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
 
@@ -85,7 +81,7 @@ This license guidance applies to DCV / DBR / DDV only — DWT (Dynamic Web TWAIN
 
 1. Do not invent APIs. If unsure about method names, class names, package names, template names, or version-specific behavior, say what needs verification and use the sample links.
 2. Prefer DCV patterns when the user needs multi-capability workflows (barcode+MRZ+document). Use DBR when the user only needs barcode/QR reading and asks for a lightweight package. In both cases, use `CaptureVisionRouter` as the core entry point — do not default to RTU wrappers (`BarcodeScanner`, `BarcodeReader`, etc.) unless the user explicitly requests a quick prototype.
-3. Use the repository default 1-day trial key unless the user supplies their own key.
+3. Always use the user's own license key when provided; never hardcode a key literal.
 4. Include resource/model/static asset configuration when relevant.
 5. Include lifecycle cleanup for camera sessions, routers, scanner sessions, viewer instances, workers, listeners, and React/Vue/Angular components.
 6. For web apps, include HTTPS/localhost camera requirements and static asset copy/serve notes.
