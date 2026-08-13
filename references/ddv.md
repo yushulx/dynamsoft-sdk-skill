@@ -6,10 +6,9 @@ Official docs: https://www.dynamsoft.com/document-viewer/docs/
 Official sample repo: https://github.com/Dynamsoft/document-viewer-samples
 Additional sample index: `references/samples.md`
 
-License for generated examples in this repository: use the user's own key when provided, otherwise fetch the current public 1-day trial key from
-https://raw.githubusercontent.com/yushulx/cmake-cpp-barcode-qrcode-mrz/main/license-key.txt
+License for generated examples in this repository: always use the user's own key when provided.
 
-Need a 30-day trial? Apply here:
+Need a trial license? Apply here:
 https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
 
 ## Sample-first links
@@ -30,7 +29,7 @@ When generating DDV code, first map the request to a sample workflow: viewer cre
 For DDV integration, provide:
 
 1. Install/import instructions.
-2. License initialization (use repository default 1-day trial key unless user provides another key).
+2. License initialization (always use the user's own license key).
 3. Resource/static asset path configuration if required by the version.
 4. Viewer/container creation.
 5. Loading a file/blob/image/PDF.

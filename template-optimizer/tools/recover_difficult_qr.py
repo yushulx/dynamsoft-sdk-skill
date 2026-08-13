@@ -7,14 +7,12 @@ import cv2
 import numpy as np
 
 try:
-    import zxingcpp
-except ImportError:
-    zxingcpp = None
-
-try:
     from dynamsoft_capture_vision_bundle import EnumPresetTemplate
-except ImportError:
-    from dynamsoft_barcode_reader_bundle import EnumPresetTemplate
+except ImportError as exc:
+    raise SystemExit(
+        "The 'dynamsoft-capture-vision-bundle' package is required. "
+        "Install it with: pip install dynamsoft-capture-vision-bundle"
+    ) from exc
 
 from validate_dbr_template import decode as dbr_decode
 
@@ -184,37 +182,6 @@ def opencv_hits(qr_detector, candidate):
     return hits
 
 
-def zxing_hits(candidate):
-    if zxingcpp is None:
-        return []
-
-    hits = []
-    try:
-        for item in zxingcpp.read_barcodes(candidate):
-            if not item.text:
-                continue
-            position = None
-            if hasattr(item, "position"):
-                position = {
-                    "top_left": [item.position.top_left.x, item.position.top_left.y],
-                    "top_right": [item.position.top_right.x, item.position.top_right.y],
-                    "bottom_right": [item.position.bottom_right.x, item.position.bottom_right.y],
-                    "bottom_left": [item.position.bottom_left.x, item.position.bottom_left.y],
-                }
-            hits.append(
-                {
-                    "engine": "zxingcpp",
-                    "format": item.format.name,
-                    "text": item.text,
-                    "points": position,
-                }
-            )
-    except Exception:
-        pass
-
-    return hits
-
-
 def verify_with_dbr(image_paths):
     template_name = EnumPresetTemplate.PT_READ_BARCODES.value
     validations = []
@@ -305,7 +272,7 @@ def main():
             for scale in args.scales:
                 enlarged = cv2.resize(rotated, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
                 for variant_name, variant in build_variants(enlarged).items():
-                    candidate_hits = opencv_hits(qr_detector, variant) + zxing_hits(variant)
+                    candidate_hits = opencv_hits(qr_detector, variant)
                     if not candidate_hits:
                         continue
 
@@ -346,7 +313,6 @@ def main():
     report = {
         "image": str(image_path),
         "output_dir": str(output_dir),
-        "zxingcpp_available": zxingcpp is not None,
         "angles": args.angles,
         "scales": args.scales,
         "hits": hits,

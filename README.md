@@ -10,13 +10,9 @@ Dynamsoft SDKs (Capture Vision, Barcode Reader, Web TWAIN, Document Viewer) unde
 
 ## Trial License for Generated Code
 
-When this skill generates Dynamsoft SDK code, it uses the user's own license key when provided. Otherwise, it fetches the current public 1-day trial key from:
+When this skill generates Dynamsoft SDK code, it always uses the user's own license key when provided. No license key is hardcoded in this repository.
 
-https://raw.githubusercontent.com/yushulx/cmake-cpp-barcode-qrcode-mrz/main/license-key.txt
-
-No license key is hardcoded in this repository.
-
-For a 30-day trial license, apply here:
+For a trial license, apply here:
 
 https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
 

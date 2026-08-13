@@ -6,8 +6,11 @@ import cv2
 
 try:
     from dynamsoft_capture_vision_bundle import CaptureVisionRouter, EnumPresetTemplate
-except ImportError:
-    from dynamsoft_barcode_reader_bundle import CaptureVisionRouter, EnumPresetTemplate
+except ImportError as exc:
+    raise SystemExit(
+        "The 'dynamsoft-capture-vision-bundle' package is required. "
+        "Install it with: pip install dynamsoft-capture-vision-bundle"
+    ) from exc
 
 from dbr_license import ensure_dbr_license
 
@@ -103,9 +106,9 @@ def decode_image(image_path, template_name, template_path=None):
     router = CaptureVisionRouter()
 
     if template_path is not None:
-        err, msg = router.init_settings_from_file(str(template_path))
+        err, _msg = router.init_settings_from_file(str(template_path))
         if err != 0:
-            return [], f"init_settings_from_file failed [{err}]: {msg}"
+            return [], f"init_settings_from_file failed (error code {err})"
 
     try:
         cv_img = cv2.imread(str(image_path), cv2.IMREAD_COLOR)

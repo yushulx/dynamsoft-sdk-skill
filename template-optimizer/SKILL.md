@@ -119,7 +119,7 @@ Ask the user for the following. Use your agent's structured-question tool (e.g.,
 | Parameter | Required | Default | Notes |
 | --- | --- | --- | --- |
 | Image path or image directory path | Yes | — | Use an image path for Track A and a directory for Track B |
-| License key | No | trial key | Ask: "Do you have a Dynamsoft license key, or should I use the public 1-day trial?" Public 1-day trial key: fetch https://raw.githubusercontent.com/yushulx/cmake-cpp-barcode-qrcode-mrz/main/license-key.txt — never hardcode a key literal |
+| License key | Yes | — | Ask: "Please provide your Dynamsoft license key" — never hardcode a key literal |
 | Barcode format hints | No | All formats | e.g., "DataMatrix only", "1D barcodes" |
 | Ground truth file | No | None | JSON mapping filenames → expected barcode texts |
 | Max iterations | No | 10 | — |

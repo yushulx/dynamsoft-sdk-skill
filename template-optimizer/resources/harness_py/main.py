@@ -37,9 +37,8 @@ import time
 
 LICENSE_HELP = (
     "Provide a Dynamsoft license key via --license or the DYNAMSOFT_LICENSE_KEY "
-    "environment variable. Public 1-day trial key: fetch the contents of "
-    "https://raw.githubusercontent.com/yushulx/cmake-cpp-barcode-qrcode-mrz/main/license-key.txt . "
-    "30-day trial: "
+    "environment variable. "
+    "Trial license: "
     "https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform"
 )
 EMBED_SIZE_THRESHOLD = 20 * 1024 * 1024  # 20 MB
@@ -153,11 +152,13 @@ def resolve_license(args):
 
 
 def init_license(LicenseManager, key):
-    error_code, error_message = LicenseManager.init_license(key)
+    error_code, _error_message = LicenseManager.init_license(key)
     if error_code != 0:
+        # Print only the error code — the message text may contain licensing
+        # diagnostics that should not be echoed to the console.
         print(
-            f"WARNING: License init returned code {error_code}: {error_message}\n"
-            "         Decoding may be limited to a small number of images.",
+            f"WARNING: License init failed (error code {error_code}). "
+            "Decoding may be limited.",
             file=sys.stderr,
         )
 

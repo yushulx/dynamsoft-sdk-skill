@@ -8,7 +8,7 @@ Use this file when the user wants to replace an existing barcode scanning librar
 2. **Map to the DCV core API, not RTU wrappers**: the target architecture is always `LicenseManager` → `CaptureVisionRouter` → input (`CameraEnhancer`/`CameraView` or image file/buffer) → `CapturedResultReceiver`. See `references/dcv.md`.
 3. **Choose package by scope**: barcode-only → `dynamsoft-barcode-reader-bundle`; barcode + MRZ/document → `dynamsoft-capture-vision-bundle`. See `references/dbr.md`.
 4. **Preserve behavior, then improve**: first match the formats, ROI, and result fields the app currently uses; only then propose Dynamsoft-specific gains (templates, multi-format, blur tolerance).
-5. **License step is new**: Dynamsoft requires `LicenseManager.initLicense(...)` before any capture. Use the repository default 1-day trial key unless the user provides their own.
+5. **License step is new**: Dynamsoft requires `LicenseManager.initLicense(...)` before any capture. Always use the user's own license key.
 6. **Do not invent source-library API details**: if the user's current code uses APIs you are unsure about, ask them to paste the relevant snippet and migrate from that, not from memory.
 
 ## From ZXing (Java / Kotlin / zxing-cpp)

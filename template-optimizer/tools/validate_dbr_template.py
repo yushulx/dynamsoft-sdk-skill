@@ -7,8 +7,11 @@ import numpy as np
 
 try:
     from dynamsoft_capture_vision_bundle import CaptureVisionRouter, EnumPresetTemplate
-except ImportError:
-    from dynamsoft_barcode_reader_bundle import CaptureVisionRouter, EnumPresetTemplate
+except ImportError as exc:
+    raise SystemExit(
+        "The 'dynamsoft-capture-vision-bundle' package is required. "
+        "Install it with: pip install dynamsoft-capture-vision-bundle"
+    ) from exc
 
 from dbr_license import ensure_dbr_license
 
@@ -139,9 +142,11 @@ def decode(image_path, template_file=None, template_name=None, fallback_profile=
     ensure_dbr_license()
     router = CaptureVisionRouter()
     if template_file:
-        err, msg = router.init_settings_from_file(str(template_file))
+        err, _msg = router.init_settings_from_file(str(template_file))
         if err != 0:
-            print(f"[DBR] Template load failed ({err}): {msg}")
+            # Print only the error code — the message text may echo back
+            # template/licensing details that shouldn't go to stdout.
+            print(f"[DBR] Template load failed (error code {err})")
 
     cv_img = cv2.imread(str(image_path))
     if cv_img is None:
