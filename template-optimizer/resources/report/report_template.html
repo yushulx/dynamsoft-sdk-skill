@@ -406,11 +406,23 @@
   </div>
 </div>
 
+<!-- Report payload. The skill replaces __REPORT_DATA__ with a JSON array
+     [results, baseline, imageDir] every "<" of which is escaped as \u003C, so
+     the payload can never break out of this block. It is parsed as data only —
+     nothing from it is ever executed as code or parsed as HTML. -->
+<script type="application/json" id="report-data">
+__REPORT_DATA__
+</script>
+
 <script>
-// ── DATA placeholder (replaced by the skill) ──
-const RESULTS = __RESULTS_JSON__;
-const BASELINE = __BASELINE_JSON__;  // null if no baseline comparison
-const IMAGE_DIR = __IMAGE_DIR__;     // relative path to images
+// ── DATA (parsed from the JSON block above) ──
+const [RESULTS, BASELINE, IMAGE_DIR] = JSON.parse(document.getElementById('report-data').textContent);
+
+// Coerce a JSON value to a finite number (results data is untrusted input).
+function num(v, dflt) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : dflt;
+}
 
 // ── Lightbox state ──
 const lb = {
@@ -480,7 +492,7 @@ function lbZoomAt(factor, clientX, clientY) {
   lbApply();
 }
 
-function lbOpen(imgSrc, polygonsSvg, filename, naturalW, naturalH, barcodes, stableKey) {
+function lbOpen(imgSrc, points, filename, naturalW, naturalH, barcodes, stableKey) {
   lb.scale = 1; lb.rotation = 0; lb.tx = 0; lb.ty = 0;
   lb.currentKey = stableKey || filename;
 
@@ -494,37 +506,34 @@ function lbOpen(imgSrc, polygonsSvg, filename, naturalW, naturalH, barcodes, sta
   const total = lbOrder.length;
   document.getElementById('lb-nav-pos').textContent = total ? `${idx + 1} / ${total}` : '';
 
-  // Populate results sidebar
-  const resBody = document.getElementById('lb-res-body');
-  if (barcodes && barcodes.length > 0) {
-    resBody.innerHTML = barcodes.map((bc) =>
-      `<div class="lb-res-item">
-        <div><span class="bc-format">${bc.format}</span>&ensp;<span class="bc-confidence">${bc.confidence}%</span></div>
-        <span class="bc-text">${escapeHtml(bc.text)}</span>
-      </div>`
-    ).join('');
-  } else {
-    resBody.innerHTML = '<p class="lb-no-results">No barcodes decoded</p>';
-  }
+  // Populate results sidebar (DOM nodes — untrusted data is never parsed as HTML)
+  buildBarcodeList(document.getElementById('lb-res-body'), barcodes);
 
   const wrap = document.getElementById('lb-img-wrap');
-  wrap.innerHTML = `<img id="lb-img" src="${escapeAttr(imgSrc)}" alt=""><svg id="lb-svg" class="overlay">${polygonsSvg}</svg>`;
+  const img = document.createElement('img');
+  img.id = 'lb-img';
+  img.alt = '';
+  img.src = imgSrc;
+  wrap.replaceChildren(img);
 
-  const img = document.getElementById('lb-img');
-  const svg = document.getElementById('lb-svg');
-  svg.style.visibility = lb.showPolygons ? 'visible' : 'hidden';
+  const svg = buildPolygonSvg(points);
+  if (svg) {
+    svg.id = 'lb-svg';
+    wrap.appendChild(svg);
+    svg.style.visibility = lb.showPolygons ? 'visible' : 'hidden';
+  }
 
   const setViewbox = () => {
     const w = img.naturalWidth  || naturalW;
     const h = img.naturalHeight || naturalH;
-    if (w && h) svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    if (w && h && svg) svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
     document.getElementById('lb-size-label').textContent = w && h ? `${w}×${h}px` : '';
     lb.scale = lbFitScale();
     lbApply();
   };
 
   if (img.complete && img.naturalWidth) { setViewbox(); }
-  else { img.onload = setViewbox; }
+  else { img.addEventListener('load', setViewbox); }
 }
 
 function lbTogglePolygons() {
@@ -540,17 +549,17 @@ function lbNav(delta) {
   const idx = lbOrder.indexOf(lb.currentKey);
   if (idx === -1) return;
   const newKey = lbOrder[(idx + delta + lbOrder.length) % lbOrder.length];
-  const d = lbStore[newKey] || { polygons: '', filename: newKey, barcodes: [] };
+  const d = lbStore[newKey] || { points: null, filename: newKey, barcodes: [] };
   const thumb = document.querySelector(`.img-container[data-lb-key="${CSS.escape(newKey)}"] img`);
   const imgSrc = (thumb && thumb.src) || newKey;
   let nw = 0, nh = 0;
   if (thumb && thumb.naturalWidth) { nw = thumb.naturalWidth; nh = thumb.naturalHeight; }
-  lbOpen(imgSrc, d.polygons, d.filename, nw, nh, d.barcodes, newKey);
+  lbOpen(imgSrc, d.points, d.filename, nw, nh, d.barcodes, newKey);
 }
 
 function lbClose() {
   document.getElementById('lightbox').classList.add('hidden');
-  document.getElementById('lb-img-wrap').innerHTML = '';
+  document.getElementById('lb-img-wrap').replaceChildren();
 }
 
 function lbBackdropDown(e) {
@@ -630,18 +639,28 @@ document.addEventListener('keydown', e => {
 // ── Render summary ──
 function renderSummary() {
   const s = document.getElementById('summary');
+  const decodeRate = num(RESULTS.decode_rate, 0);
   const cards = [
-    { value: `${RESULTS.images_decoded}/${RESULTS.total_images}`, label: 'Images Decoded', warn: RESULTS.decode_rate < 0.8 },
-    { value: `${(RESULTS.decode_rate * 100).toFixed(1)}%`, label: 'Decode Rate', warn: RESULTS.decode_rate < 0.8 },
-    { value: RESULTS.avg_confidence.toFixed(1), label: 'Avg Confidence', warn: RESULTS.avg_confidence < 80 },
-    { value: `${RESULTS.avg_time_ms.toFixed(0)}ms`, label: 'Avg Time/Image', warn: RESULTS.avg_time_ms > 500 },
+    { value: `${num(RESULTS.images_decoded, 0)}/${num(RESULTS.total_images, 0)}`, label: 'Images Decoded', warn: decodeRate < 0.8 },
+    { value: `${(decodeRate * 100).toFixed(1)}%`, label: 'Decode Rate', warn: decodeRate < 0.8 },
+    { value: num(RESULTS.avg_confidence, 0).toFixed(1), label: 'Avg Confidence', warn: num(RESULTS.avg_confidence, 0) < 80 },
+    { value: `${num(RESULTS.avg_time_ms, 0).toFixed(0)}ms`, label: 'Avg Time/Image', warn: num(RESULTS.avg_time_ms, 0) > 500 },
   ];
-  if (RESULTS.ground_truth_match_rate !== undefined) {
-    cards.push({ value: `${(RESULTS.ground_truth_match_rate * 100).toFixed(1)}%`, label: 'GT Match Rate', warn: RESULTS.ground_truth_match_rate < 0.8 });
+  if (num(RESULTS.ground_truth_match_rate, -1) >= 0) {
+    cards.push({ value: `${(num(RESULTS.ground_truth_match_rate, 0) * 100).toFixed(1)}%`, label: 'GT Match Rate', warn: num(RESULTS.ground_truth_match_rate, 0) < 0.8 });
   }
-  s.innerHTML = cards.map(c =>
-    `<div class="stat-card"><div class="value ${c.warn ? 'warn' : ''}">${c.value}</div><div class="label">${c.label}</div></div>`
-  ).join('');
+  s.replaceChildren(...cards.map(c => {
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    const valueEl = document.createElement('div');
+    valueEl.className = c.warn ? 'value warn' : 'value';
+    valueEl.textContent = c.value;
+    const labelEl = document.createElement('div');
+    labelEl.className = 'label';
+    labelEl.textContent = c.label;
+    card.append(valueEl, labelEl);
+    return card;
+  }));
 }
 
 // ── Render comparison table ──
@@ -655,19 +674,26 @@ function renderComparison() {
     { label: 'Avg Confidence', b: BASELINE.avg_confidence, o: RESULTS.avg_confidence, fmt: v => v.toFixed(1), higher: true },
     { label: 'Avg Time (ms)', b: BASELINE.avg_time_ms, o: RESULTS.avg_time_ms, fmt: v => v.toFixed(0), higher: false },
   ];
-  if (BASELINE.ground_truth_match_rate !== undefined) {
-    rows.push({ label: 'GT Match Rate', b: BASELINE.ground_truth_match_rate, o: RESULTS.ground_truth_match_rate, fmt: v => `${(v*100).toFixed(1)}%`, higher: true });
+  if (num(BASELINE.ground_truth_match_rate, -1) >= 0) {
+    rows.push({ label: 'GT Match Rate', b: num(BASELINE.ground_truth_match_rate, 0), o: num(RESULTS.ground_truth_match_rate, 0), fmt: v => `${(v*100).toFixed(1)}%`, higher: true });
   }
-  body.innerHTML = rows.map(r => {
+  body.replaceChildren(...rows.map(r => {
     const delta = r.o - r.b;
     const good = r.higher ? delta > 0 : delta < 0;
     const cls = delta === 0 ? '' : (good ? 'delta-pos' : 'delta-neg');
     const sign = delta > 0 ? '+' : '';
-    const deltaStr = typeof r.b === 'number' && typeof r.o === 'number'
-      ? (r.label.includes('%') || r.label.includes('Rate') ? `${sign}${(delta*100).toFixed(1)}%` : `${sign}${delta.toFixed(1)}`)
-      : '';
-    return `<tr><td>${r.label}</td><td>${r.fmt(r.b)}</td><td>${r.fmt(r.o)}</td><td class="${cls}">${deltaStr}</td></tr>`;
-  }).join('');
+    const deltaStr = (r.label.includes('%') || r.label.includes('Rate'))
+      ? `${sign}${(delta*100).toFixed(1)}%`
+      : `${sign}${delta.toFixed(1)}`;
+    const tr = document.createElement('tr');
+    for (const [text, clsName] of [[r.label, ''], [r.fmt(r.b), ''], [r.fmt(r.o), ''], [deltaStr, cls]]) {
+      const td = document.createElement('td');
+      if (clsName) td.className = clsName;
+      td.textContent = text;
+      tr.appendChild(td);
+    }
+    return tr;
+  }));
 }
 
 // ── Lightbox data store (keyed by image src for stability across filter re-renders) ──
@@ -678,54 +704,89 @@ function renderGrid(filter) {
   const grid = document.getElementById('grid');
   lbOrder = [];
   let decoded = 0, failed = 0;
-  const cards = RESULTS.per_image.map(img => {
-    const ok = img.barcodes && img.barcodes.length > 0;
+  const cards = [];
+
+  for (const img of (Array.isArray(RESULTS.per_image) ? RESULTS.per_image : [])) {
+    const barcodes = Array.isArray(img.barcodes) ? img.barcodes : [];
+    const ok = barcodes.length > 0;
     if (ok) decoded++; else failed++;
-    if (filter === 'decoded' && !ok) return '';
-    if (filter === 'failed' && ok) return '';
+    if (filter === 'decoded' && !ok) continue;
+    if (filter === 'failed' && ok) continue;
 
     // Prefer embedded data URI (no file:// loading needed); fall back to path.
     const imgSrc = img.data_uri || (IMAGE_DIR + '/' + (img.converted_file || img.file));
-    const stableKey = img.converted_file || img.file;
-    let barcodeHtml = '';
-    let svgPolygons = '';
-    if (ok) {
-      img.barcodes.forEach((bc, i) => {
-        barcodeHtml += `<div><span class="bc-format">${bc.format}</span> <span class="bc-confidence">${bc.confidence}%</span></div>`;
-        barcodeHtml += `<div><span class="bc-text">${escapeHtml(bc.text)}</span></div>`;
-        if (bc.location && bc.location.length === 4) {
-          const pts = bc.location.map(p => p.join(',')).join(' ');
-          svgPolygons += `<polygon points="${pts}" fill="rgba(46,204,113,0.15)" stroke="#2ecc71" stroke-width="2"/>`;
-        }
-      });
-    }
-    const svgOverlay = svgPolygons
-      ? `<svg class="overlay" viewBox="0 0 1 1" preserveAspectRatio="none">${svgPolygons}</svg>`
-      : '';
+    const stableKey = String(img.converted_file || img.file);
+    const points = sanitizeBarcodePoints(barcodes);
 
     // Store lightbox data keyed by stable filename (not data URI which is huge)
-    lbStore[stableKey] = { polygons: svgPolygons, filename: img.file, barcodes: img.barcodes || [] };
+    lbStore[stableKey] = { points, filename: String(img.file), barcodes };
     lbOrder.push(stableKey);
 
-    return `
-      <div class="image-card ${ok ? 'decoded' : 'failed'}">
-        <div class="img-container" data-lb-key="${escapeAttr(stableKey)}" title="Click to enlarge">
-          <div class="img-wrapper">
-            <img src="${escapeAttr(imgSrc)}" loading="lazy"
-              onload="var s=this.parentElement.querySelector('svg.overlay'); if(s) s.setAttribute('viewBox','0 0 '+this.naturalWidth+' '+this.naturalHeight);"
-              onerror="this.alt='Image not found'; this.style.padding='40px';">
-            ${svgOverlay}
-          </div>
-        </div>
-        <div class="info">
-          <div class="filename">${escapeHtml(img.file)}</div>
-          <div class="status ${ok ? 'ok' : 'fail'}">${ok ? 'DECODED' : 'FAILED'} <span class="time-info">(${img.time_ms.toFixed(0)}ms)</span></div>
-          ${ok ? `<details class="image-details"><summary>Barcode details</summary><div class="barcode-detail">${barcodeHtml}</div></details>` : ''}
-        </div>
-      </div>`;
-  });
+    // Card DOM. Filenames, barcode text, formats and locations are untrusted
+    // input — always set via textContent / setAttribute, never parsed as HTML.
+    const detail = document.createElement('div');
+    detail.className = 'barcode-detail';
+    for (const bc of barcodes) {
+      const row = document.createElement('div');
+      row.appendChild(metaLine(bc));
+      const text = document.createElement('div');
+      text.appendChild(spanEl('bc-text', String(bc.text ?? '')));
+      row.appendChild(text);
+      detail.appendChild(row);
+    }
+    const collapse = document.createElement('details');
+    collapse.className = 'image-details';
+    const summary = document.createElement('summary');
+    summary.textContent = 'Barcode details';
+    collapse.append(summary, detail);
 
-  grid.innerHTML = cards.join('');
+    const status = document.createElement('div');
+    status.className = ok ? 'status ok' : 'status fail';
+    status.textContent = ok ? 'DECODED ' : 'FAILED ';
+    const timeInfo = document.createElement('span');
+    timeInfo.className = 'time-info';
+    timeInfo.textContent = `(${num(img.time_ms, 0).toFixed(0)}ms)`;
+    status.appendChild(timeInfo);
+
+    const filenameEl = document.createElement('div');
+    filenameEl.className = 'filename';
+    filenameEl.textContent = String(img.file ?? '');
+
+    const info = document.createElement('div');
+    info.className = 'info';
+    info.append(filenameEl, status, collapse);
+
+    const imgEl = document.createElement('img');
+    imgEl.src = imgSrc;
+    imgEl.loading = 'lazy';
+    imgEl.addEventListener('error', () => { imgEl.alt = 'Image not found'; imgEl.style.padding = '40px'; });
+
+    const wrap = document.createElement('div');
+    wrap.className = 'img-wrapper';
+    const svg = buildPolygonSvg(points);
+    if (svg) {
+      imgEl.addEventListener('load', () => {
+        if (imgEl.naturalWidth && imgEl.naturalHeight) {
+          svg.setAttribute('viewBox', `0 0 ${imgEl.naturalWidth} ${imgEl.naturalHeight}`);
+        }
+      });
+      wrap.appendChild(svg);
+    }
+    wrap.insertBefore(imgEl, wrap.firstChild);
+
+    const container = document.createElement('div');
+    container.className = 'img-container';
+    container.dataset.lbKey = stableKey;
+    container.title = 'Click to enlarge';
+    container.appendChild(wrap);
+
+    const card = document.createElement('div');
+    card.className = ok ? 'image-card decoded' : 'image-card failed';
+    card.append(container, info);
+    cards.push(card);
+  }
+
+  grid.replaceChildren(...cards);
   document.getElementById('count-all').textContent = decoded + failed;
   document.getElementById('count-decoded').textContent = decoded;
   document.getElementById('count-failed').textContent = failed;
@@ -748,15 +809,79 @@ document.getElementById('grid').addEventListener('click', e => {
 });
 
 // NOTE: image filenames, decoded barcode text, and ground-truth content are
-// untrusted external input. Always escape them before inserting into HTML
-// (escapeHtml for text nodes, escapeAttr for attribute values).
-function escapeAttr(s) {
-  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+// untrusted external input. Every value coming from the results JSON is
+// rendered into DOM nodes via textContent / setAttribute — nothing is parsed
+// as HTML, so markup in the data can never execute.
+function spanEl(cls, text) {
+  const el = document.createElement('span');
+  if (cls) el.className = cls;
+  el.textContent = text;
+  return el;
 }
-function escapeHtml(s) {
+
+// One "format  confidence%" meta line for a barcode.
+function metaLine(bc) {
   const div = document.createElement('div');
-  div.textContent = s;
-  return div.innerHTML;
+  div.append(spanEl('bc-format', String(bc.format ?? '')),
+    '\u2002',                                // en-space, like &ensp;
+    spanEl('bc-confidence', String(bc.confidence ?? '') + '%'));
+  return div;
+}
+
+// Barcode location arrays → [[x,y],...] with finite numbers only.
+function sanitizeBarcodePoints(barcodes) {
+  const out = [];
+  for (const bc of barcodes) {
+    const pts = bc.location;
+    if (!Array.isArray(pts) || pts.length !== 4) continue;
+    const clean = [];
+    let valid = true;
+    for (const p of pts) {
+      if (!Array.isArray(p) || p.length < 2) { valid = false; break; }
+      const x = Number(p[0]), y = Number(p[1]);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) { valid = false; break; }
+      clean.push([x, y]);
+    }
+    if (valid) out.push(clean);
+  }
+  return out;
+}
+
+// Sanitized barcode polygons → one <svg class="overlay"> element (or null).
+function buildPolygonSvg(points) {
+  if (!points || points.length === 0) return null;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'overlay');
+  svg.setAttribute('viewBox', '0 0 1 1');
+  svg.setAttribute('preserveAspectRatio', 'none');
+  for (const pts of points) {
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', pts.map(p => p.join(',')).join(' '));
+    poly.setAttribute('fill', 'rgba(46,204,113,0.15)');
+    poly.setAttribute('stroke', '#2ecc71');
+    poly.setAttribute('stroke-width', '2');
+    svg.appendChild(poly);
+  }
+  return svg;
+}
+
+// Barcode results sidebar rows in the lightbox.
+function buildBarcodeList(container, barcodes) {
+  container.replaceChildren();
+  if (!barcodes || barcodes.length === 0) {
+    const p = document.createElement('p');
+    p.className = 'lb-no-results';
+    p.textContent = 'No barcodes decoded';
+    container.appendChild(p);
+    return;
+  }
+  for (const bc of barcodes) {
+    const item = document.createElement('div');
+    item.className = 'lb-res-item';
+    item.appendChild(metaLine(bc));
+    item.appendChild(spanEl('bc-text', String(bc.text ?? '')));
+    container.appendChild(item);
+  }
 }
 
 // ── Filter buttons ──

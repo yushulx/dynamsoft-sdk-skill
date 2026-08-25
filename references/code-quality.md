@@ -65,9 +65,9 @@ Cause: The app uses a bundler (Vite, webpack, Rollup, Next.js, etc.). Bundlers p
 
 Fix: Set the engine resource path explicitly **before** initializing the license:
 
-- DCV/DBR bundle: `CoreModule.engineResourcePaths.rootDirectory = "https://cdn.jsdelivr.net/npm/";` — the property is `rootDirectory` (NOT `root`), and the value is the npm CDN root (the SDK appends `<package>@<version>/dist/` itself).
-- DDV: `Dynamsoft.DDV.Core.engineResourcePath = "https://cdn.jsdelivr.net/npm/dynamsoft-document-viewer@<version>/dist/engine";` before `Core.init()`.
-- Alternatively self-host the SDK's `dist` assets and point the path at that local URL.
+- DCV/DBR bundle: `CoreModule.engineResourcePaths.rootDirectory = "/dynamsoft/";` — the property is `rootDirectory` (NOT `root`), and the value is the directory the SDK's `dist` assets are served from (the SDK appends `<package>@<version>/dist/` itself). Self-host those assets (copy the installed package's `dist` folder under that layout) — never point the engine at a third-party CDN at runtime.
+- DDV: `Dynamsoft.DDV.Core.engineResourcePath = "./dynamsoft-document-viewer/dist/engine";` before `Core.init()` — copy the installed `dynamsoft-document-viewer` package's `dist/engine` folder next to your app.
+- Verify the served path returns real files: a SPA fallback answering with `index.html` is the actual root cause of the `'<`' error above.
 
 Plain `<script>`-tag usage (no bundler) auto-detects the path and usually does not need this. Verified against `dynamsoft-capture-vision-bundle` v3.4.x. See `references/dcv.md` and `references/ddv.md`.
 

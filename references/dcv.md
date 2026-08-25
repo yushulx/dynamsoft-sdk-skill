@@ -115,15 +115,24 @@ To build a modern web barcode or document capture app, install the official bund
 npm install dynamsoft-capture-vision-bundle
 ```
 
-### Complete HTML + CDN Real-Time Barcode Scanner Example
+### Complete HTML Real-Time Barcode Scanner Example (self-hosted bundle)
+
+Install the pinned bundle and copy its `dist` file into your project's static folder once, at build time:
+
+```bash
+npm install dynamsoft-capture-vision-bundle@3.4.3000
+mkdir -p public
+cp node_modules/dynamsoft-capture-vision-bundle/dist/dcv.bundle.min.js public/
+```
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Real-Time Barcode Scanner</title>
-  <!-- Load the unified Dynamsoft Capture Vision Bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/dynamsoft-capture-vision-bundle@3.4.3000/dist/dcv.bundle.min.js"></script>
+  <!-- Local copy of the pinned bundle — served from your own origin, not a CDN -->
+  <script src="./dcv.bundle.min.js"></script>
   <style>
     #camera-container {
       width: 100%;
@@ -199,9 +208,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { CoreModule, LicenseManager, CaptureVisionRouter, CameraEnhancer, CameraView } from 'dynamsoft-capture-vision-bundle';
 
 // REQUIRED when the SDK is bundled (Vite / webpack / Rollup / Next.js, etc.):
-// the property is `rootDirectory` (NOT `root`), and the value is the npm CDN
-// root — the SDK appends `<package>@<version>/dist/` to it automatically.
-CoreModule.engineResourcePaths.rootDirectory = "https://cdn.jsdelivr.net/npm/";
+// the property is `rootDirectory` (NOT `root`). Serve the SDK's dist assets
+// from your own origin — copy them under the SDK's package name so the
+// `<package>@<version>/dist/` path the SDK appends resolves correctly:
+//   mkdir -p public/dynamsoft/dynamsoft-capture-vision-bundle@3.4.3000
+//   cp -r node_modules/dynamsoft-capture-vision-bundle/dist public/dynamsoft/dynamsoft-capture-vision-bundle@3.4.3000/
+CoreModule.engineResourcePaths.rootDirectory = "/dynamsoft/";
 
 interface ScannerProps {
   onResultsFound: (results: string[]) => void;
@@ -422,12 +434,11 @@ class BarcodeScannerService {
 1.  **Missing WASM/Models / `Uncaught SyntaxError: Unexpected token '<'` on Web**: When the SDK is loaded through a bundler (Vite, webpack, Rollup, Next.js, etc.) it cannot infer its own script URL, so without an explicit engine path it requests the `.wasm` / `.worker.js` files from the app's own origin and receives `index.html` back — the HTML `<` is what triggers `Unexpected token '<'` (often surfacing only when `capture()` first loads the detection/recognition wasm). Fix it by setting the engine path **before** `LicenseManager.initLicense(...)`:
     ```ts
     import { CoreModule } from 'dynamsoft-capture-vision-bundle';
-    CoreModule.engineResourcePaths.rootDirectory = "https://cdn.jsdelivr.net/npm/";
+    CoreModule.engineResourcePaths.rootDirectory = "/dynamsoft/";
     ```
     Critical details, all verified against `dynamsoft-capture-vision-bundle` v3.4.x:
     - The property is **`rootDirectory`**, NOT `root`. Setting `.root` silently does nothing (it is not a member of `EngineResourcePaths`), so the engine keeps falling back to the app origin and the error persists.
-    - The value is the **npm CDN root** `https://cdn.jsdelivr.net/npm/` (with trailing slash). The SDK appends `<package>@<version>/dist/...` itself — do not point it at a single bundle's `dist/` folder.
+    - The value is the **directory root** (with trailing slash) that the SDK's engine assets are served from. The SDK appends `<package>@<version>/dist/...` itself — do not point it at a single bundle's `dist/` folder, and do not fetch engine assets from a third-party CDN at runtime. Self-host the installed package's `dist` assets under that layout (see the copy commands in the React pattern above); this is also the production-hardening recommendation.
     - With a plain `<script src=".../dcv.bundle.min.js">` tag (no bundler) this is auto-detected and usually unnecessary; it is specifically the **bundled** case that requires it.
-    - To self-host instead, copy the bundle's `dist` assets and set `rootDirectory` to that local URL.
 2.  **HTTPS vs. Localhost**: Modern browsers block camera access via `navigator.mediaDevices.getUserMedia` unless served under `https://` or `http://localhost`. Ensure your deployment environment has SSL setup.
 3.  **Correct Casting**: In languages like Python/Java/C#, the items returned by `CaptureVisionRouter` are of a generic `CapturedResultItem` class. You must check their type (`EnumCapturedResultItemType`) and cast them explicitly to `BarcodeResultItem`, `NormalizedImageResultItem`, or other sub-classes to access specific attributes like text or coordinates.

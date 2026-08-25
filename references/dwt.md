@@ -40,13 +40,21 @@ When generating DWT code, pick the closest framework sample first, then adapt it
 
 ## Minimal browser scanning pattern
 
+Install and self-host the runtime (done once at build time; the page then loads it from your own origin):
+
+```bash
+npm install dwt
+mkdir -p public/dwt-resources
+cp -r node_modules/dwt/dist public/dwt-resources/   # keep the src/ subdirectory!
+```
+
 ```html
-<script src="https://cdn.jsdelivr.net/npm/dwt/dist/dynamsoft.webtwain.min.js"></script>
+<script src="./dwt-resources/dynamsoft.webtwain.min.js"></script>
 <div id="dwtcontrolContainer"></div>
 <button onclick="scan()">Scan</button>
 <script>
   Dynamsoft.DWT.ProductKey = "YOUR-PRODUCT-KEY";
-  Dynamsoft.DWT.ResourcesPath = "https://cdn.jsdelivr.net/npm/dwt/dist";
+  Dynamsoft.DWT.ResourcesPath = "./dwt-resources";
   Dynamsoft.DWT.Containers = [{ ContainerId: "dwtcontrolContainer", Width: "360px", Height: "480px" }];
 
   let dwtObject;
@@ -131,10 +139,8 @@ DWObject.RemoveAllImages();
 
 DWT provides on-device OCR via the OCRKit addon. OCR requires two components:
 
-1. **JS addon script**: `dynamsoft.webtwain.addon.ocrkit.js` (CDN: `https://cdn.jsdelivr.net/npm/dwt/dist/dynamsoft.webtwain.addon.ocrkit.js`)
-2. **OCR runtime package**: Download and install as administrator from:
-   - **Correct URL**: `https://download2.dynamsoft.com/dwt/DynamicWebTWAINOCRResources.zip`
-   - Unzip and run `Install.cmd` as administrator to copy runtime files into the DWT Service installation folder.
+1. **JS addon script**: `dynamsoft.webtwain.addon.ocrkit.js` — it ships in the `dwt` npm package at `node_modules/dwt/dist/dynamsoft.webtwain.addon.ocrkit.js`; copy it into your self-hosted resources path alongside the rest of `dist/`.
+2. **OCR runtime package**: Download the official OCR Runtime Package (`DynamicWebTWAINOCRResources.zip`) from the DWT OCR docs page (https://www.dynamsoft.com/web-twain/docs/info/api/Addon_OCR.html, section "Install OCR Runtime Package"), then unzip and run `Install.cmd` as administrator to copy runtime files into the DWT Service installation folder.
 
 Key API methods on `DWTObject.Addon.OCRKit`:
 - `GetInstalledOCRInfo()` — check if OCR runtime is installed.

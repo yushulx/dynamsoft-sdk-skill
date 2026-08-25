@@ -459,12 +459,14 @@ The default template dump contains multiple `CaptureVisionTemplates` entries (e.
 
 Read the report template from `SKILL_DIR/resources/report/report_template.html`.
 
-Replace the three placeholder values with actual data:
-- `__RESULTS_JSON__` → the final results JSON object (inline JS literal, NOT a string)
-- `__BASELINE_JSON__` → the baseline results JSON object, or the literal `null`
-- `__IMAGE_DIR__` → relative path from the HTML file to the image directory, as a quoted JS string
+Replace the `__REPORT_DATA__` placeholder with a JSON array `[results, baseline, imageDir]`:
+- `results` → the final results JSON object
+- `baseline` → the baseline results JSON object, or `null`
+- `imageDir` → relative path from the HTML file to the image directory (e.g. `"imgs_jpg"`)
 
-**HEIC/HEIF images**: If `--converted-dir` was used (e.g. `imgs_jpg`), set `IMAGE_DIR` to that directory — the report uses each image's `converted_file` field (the `.jpg` name) automatically and falls back to `file` for non-converted images. Example: `"imgs_jpg"`.
+**Mandatory escaping**: write every `<` character in the JSON array text as `\u003C` before inserting it into the template. This keeps the payload inside its `<script type="application/json">` block — the template parses it with `JSON.parse` and renders every value as text (never as HTML or code), so barcode text, filenames, and ground-truth content cannot inject markup even if they contain `</script>`.
+
+**HEIC/HEIF images**: If `--converted-dir` was used (e.g. `imgs_jpg`), set `imageDir` to that directory — the report uses each image's `converted_file` field (the `.jpg` name) automatically and falls back to `file` for non-converted images.
 
 **If Node.js is available** (recommended for large result files):
 
@@ -472,14 +474,15 @@ Replace the three placeholder values with actual data:
 node -e "
 const fs = require('fs');
 const tpl = fs.readFileSync('SKILL_DIR/resources/report/report_template.html', 'utf-8');
-const results = fs.readFileSync('iter_N_results.json', 'utf-8').trim();
-const baseline = fs.readFileSync('baseline_results.json', 'utf-8').trim();
-let html = tpl.replace('__RESULTS_JSON__', results).replace('__BASELINE_JSON__', baseline).replace('__IMAGE_DIR__', '\"<image-dir>\"');
+const results = JSON.parse(fs.readFileSync('iter_N_results.json', 'utf-8'));
+const baseline = JSON.parse(fs.readFileSync('baseline_results.json', 'utf-8'));
+const payload = JSON.stringify([results, baseline, '<image-dir>']).replace(/</g, '\\\\u003c');
+let html = tpl.replace('__REPORT_DATA__', payload);
 fs.writeFileSync('optimization_report.html', html);
 "
 ```
 
-**If Node.js is NOT available**: Use the Read and Write tools — read the template, perform the replacements in-context, and write the output HTML.
+**If Node.js is NOT available**: Use the Read and Write tools — read the template, build the JSON array, replace every `<` in its text with `\u003C`, substitute it for `__REPORT_DATA__`, and write the output HTML.
 
 The report shows:
 - Summary stat cards (decode rate, confidence, time)
@@ -568,10 +571,7 @@ Generate a visual HTML report from existing results without running an optimizat
 
 2. Read the report template from `SKILL_DIR/resources/report/report_template.html`
 
-3. Replace placeholders (same as Step 7b in Optimize mode):
-   - `__RESULTS_JSON__` → parsed results object
-   - `__BASELINE_JSON__` → parsed baseline object or `null`
-   - `__IMAGE_DIR__` → quoted relative path to images
+3. Replace the `__REPORT_DATA__` placeholder (same as Step 7b in Optimize mode) with the JSON array `[results, baseline, imageDir]`, escaping every `<` as `\u003C`.
 
 4. Write the filled HTML to the output path
 

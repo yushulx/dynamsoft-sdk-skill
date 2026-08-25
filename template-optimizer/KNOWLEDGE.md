@@ -718,11 +718,11 @@ baseline = json.load(open('baseline_results.json'))
 embed_images(results, 'barcodemiss')
 embed_images(baseline, 'barcodemiss')
 
+# Escape '<' as \u003C so the payload cannot break out of the
+# <script type="application/json"> block in the report template.
 tpl = open('SKILL_DIR/resources/report/report_template.html').read()
-html = (tpl
-    .replace('__RESULTS_JSON__', json.dumps(results))
-    .replace('__BASELINE_JSON__', json.dumps(baseline))
-    .replace('__IMAGE_DIR__', '"barcodemiss"'))
+payload = json.dumps([results, baseline, 'barcodemiss']).replace('<', '\\u003C')
+html = tpl.replace('__REPORT_DATA__', payload)
 open('optimization_report.html', 'w').write(html)
 ```
 
