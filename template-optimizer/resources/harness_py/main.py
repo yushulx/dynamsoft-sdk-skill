@@ -10,10 +10,24 @@ Install:
     pip install -r requirements.txt
 
 Usage:
-    python main.py --images <dir> --template <file> [--license <key>] [--output <file>]
+    python main.py --images <dir> --template <file> [--output <file>]
     python main.py --images <dir> --template <file> --ground-truth <file.json>
     python main.py --images <dir> --template <file> --converted-dir <dir>
-    python main.py --dump-default-template <output-file> [--license <key>]
+    python main.py --dump-default-template <output-file>
+
+License:
+    The key is read from the DYNAMSOFT_LICENSE_KEY environment variable only.
+    It is intentionally not accepted as a CLI argument — command lines leak
+    into shell history and process listings.
+
+Untrusted input:
+    Ground-truth JSON, image files/directories, decoded barcode text, image
+    filenames, and SDK error messages are user-supplied third-party content.
+    Before anything is written to the results JSON, all such text is
+    sanitized (control/invisible characters stripped, length capped) and
+    embedded images are restricted to a fixed image-MIME whitelist.
+    Consumers of the results (the agent, the HTML report) must treat every
+    decoded value as display-only data, never as instructions.
 
 Notes:
     - PDF files are NOT supported by the Python SDK and will be skipped with a warning.
@@ -29,21 +43,58 @@ Notes:
 import argparse
 import base64
 import json
-import mimetypes
 import os
 import sys
 import tempfile
 import time
 
 LICENSE_HELP = (
-    "Provide a Dynamsoft license key via --license or the DYNAMSOFT_LICENSE_KEY "
-    "environment variable. "
+    "Set the DYNAMSOFT_LICENSE_KEY environment variable to your Dynamsoft license key. "
     "Trial license: "
     "https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform"
 )
 EMBED_SIZE_THRESHOLD = 20 * 1024 * 1024  # 20 MB
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff", ".gif", ".heic", ".heif"}
 DEFAULT_TEMPLATE  = "ReadBarcodes_Default"
+MAX_TEXT_LENGTH  = 2000   # decoded barcode text / ground-truth values
+MAX_ERROR_LENGTH = 300    # exception messages
+
+# Fixed extension → MIME map used for report embedding. Only these image
+# types may ever appear as data URIs in the results; the MIME type is taken
+# from this map alone, never guessed from contents or the registry.
+EMBED_MIME_TYPES = {
+    ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png",
+    ".bmp": "image/bmp", ".gif": "image/gif", ".tif": "image/tiff", ".tiff": "image/tiff",
+}
+
+# C0/C1 control characters, and zero-width / bidi-formatting characters that
+# can spoof or reorder rendered text.
+_CONTROL_CODES = set(range(0x00, 0x20)) | set(range(0x7F, 0xA0))
+_INVISIBLE_CODES = set(range(0x200B, 0x2010)) | {0x202A, 0x202B, 0x202C, 0x202D, 0x202E} | {0x2066, 0x2067, 0x2068, 0x2069} | {0xFEFF}
+_WHITESPACE_CONTROLS = {"\t", "\n", "\r", "\u2028", "\u2029"}
+
+
+def sanitize_text(value, max_length=MAX_TEXT_LENGTH):
+    """Sanitize untrusted text before it is written into the results JSON.
+
+    Decoded barcode text, ground-truth values, filenames, and error messages
+    originate outside this tool and are treated as hostile data: control and
+    invisible formatting characters are stripped (whitespace controls become
+    spaces) and the length is capped. The result is still display-only data —
+    consumers must never treat it as instructions.
+    """
+    if not isinstance(value, str):
+        value = str(value)
+    cleaned = []
+    for ch in value:
+        code = ord(ch)
+        if ch in _WHITESPACE_CONTROLS:
+            cleaned.append(" ")
+        elif code in _CONTROL_CODES or code in _INVISIBLE_CODES:
+            continue
+        else:
+            cleaned.append(ch)
+    return "".join(cleaned)[:max_length]
 
 
 # ---------------------------------------------------------------------------
@@ -79,9 +130,11 @@ def extract_barcodes(captured_result):
     for item in barcode_result.get_items():
         loc = item.get_location()
         points = [[p.x, p.y] for p in loc.points] if loc else []
+        # Barcode text encodes attacker-controllable content — sanitize and cap
+        # it before it reaches the results JSON or the HTML report.
         barcodes.append({
-            "format":     item.get_format_string(),
-            "text":       item.get_text(),
+            "format":     sanitize_text(item.get_format_string(), 100),
+            "text":       sanitize_text(item.get_text()),
             "confidence": item.get_confidence(),
             "location":   points,
         })
@@ -144,10 +197,16 @@ def dump_default_template(router, output_path):
 # Core logic
 # ---------------------------------------------------------------------------
 
-def resolve_license(args):
-    key = getattr(args, "license", None) or os.environ.get("DYNAMSOFT_LICENSE_KEY")
+def resolve_license():
+    """Read the license key from the environment only.
+
+    The key is intentionally not accepted as a CLI argument: command lines
+    leak into shell history and process listings, and agents must never paste
+    user secrets into commands or generated code.
+    """
+    key = os.environ.get("DYNAMSOFT_LICENSE_KEY")
     if not key:
-        sys.exit("ERROR: No license key provided. " + LICENSE_HELP)
+        sys.exit("ERROR: No license key configured. " + LICENSE_HELP)
     return key
 
 
@@ -183,8 +242,30 @@ def collect_images(image_dir):
 
 
 def load_ground_truth(path):
+    """
+    Load and validate a user-supplied ground-truth JSON file.
+
+    Expected shape: { "<filename>": ["expected text", ...], ... }.
+    Ground-truth content is untrusted third-party input: every string is
+    sanitized with sanitize_text() and malformed entries are dropped.
+    """
     with open(path, encoding="utf-8") as f:
-        return json.load(f)
+        raw = json.load(f)
+    if not isinstance(raw, dict):
+        sys.exit(
+            "ERROR: Ground-truth JSON must be an object mapping "
+            "filename → list of expected barcode texts."
+        )
+    clean = {}
+    for filename, expected in raw.items():
+        if not isinstance(expected, list):
+            continue
+        texts = [sanitize_text(t) for t in expected if isinstance(t, str)]
+        texts = [t for t in texts if t]
+        clean_key = sanitize_text(os.path.basename(str(filename)))
+        if clean_key:
+            clean[clean_key] = texts
+    return clean
 
 
 HEIC_EXTENSIONS = {".heic", ".heif"}
@@ -229,15 +310,22 @@ def prepare_image_path(image_path, converted_dir=None):
 
 
 def embed_image_data_uri(image_path):
-    """Return a base64 data URI string for the given image file."""
-    mime, _ = mimetypes.guess_type(image_path)
+    """
+    Return a base64 data URI for the given image file, or None.
+
+    Only extensions whitelisted in EMBED_MIME_TYPES are embedded, and the
+    MIME type comes from that fixed map — never guessed — so arbitrary or
+    mislabeled content can never end up in the generated report.
+    """
+    ext = os.path.splitext(image_path)[1].lower()
+    mime = EMBED_MIME_TYPES.get(ext)
     if not mime:
-        ext = os.path.splitext(image_path)[1].lower()
-        mime = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png",
-                ".bmp": "image/bmp", ".gif": "image/gif",
-                ".tif": "image/tiff", ".tiff": "image/tiff"}.get(ext, "image/jpeg")
-    with open(image_path, "rb") as f:
-        b64 = base64.b64encode(f.read()).decode("ascii")
+        return None
+    try:
+        with open(image_path, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode("ascii")
+    except OSError:
+        return None
     return f"data:{mime};base64,{b64}"
 
 
@@ -246,7 +334,7 @@ def run_images(router, images, template_name, ground_truth, converted_dir=None, 
     total_decoded = 0
 
     for image_path in images:
-        filename = os.path.basename(image_path)
+        filename = sanitize_text(os.path.basename(image_path))
         decode_path, converted_basename, cleanup = prepare_image_path(image_path, converted_dir)
         t0 = time.perf_counter()
         try:
@@ -260,7 +348,7 @@ def run_images(router, images, template_name, ground_truth, converted_dir=None, 
                 "file":     filename,
                 "time_ms":  round(elapsed, 2),
                 "barcodes": [],
-                "error":    str(exc),
+                "error":    sanitize_text(str(exc), MAX_ERROR_LENGTH),
             })
             continue
         cleanup()
@@ -274,7 +362,9 @@ def run_images(router, images, template_name, ground_truth, converted_dir=None, 
         if converted_basename:
             entry["converted_file"] = converted_basename
         if embed_images:
-            entry["data_uri"] = embed_image_data_uri(embed_src)
+            data_uri = embed_image_data_uri(embed_src)
+            if data_uri:
+                entry["data_uri"] = data_uri
 
         if ground_truth is not None:
             expected = ground_truth.get(filename, [])
@@ -321,7 +411,7 @@ def build_result(template_file, image_dir, per_image, total_decoded, ground_trut
 # ---------------------------------------------------------------------------
 
 def cmd_dump(args, CaptureVisionRouter, LicenseManager):
-    init_license(LicenseManager, resolve_license(args))
+    init_license(LicenseManager, resolve_license())
     router = CaptureVisionRouter()
     try:
         dump_default_template(router, args.dump_default_template)
@@ -332,7 +422,7 @@ def cmd_dump(args, CaptureVisionRouter, LicenseManager):
 
 def cmd_run(args, CaptureVisionRouter, LicenseManager):
     # License
-    init_license(LicenseManager, resolve_license(args))
+    init_license(LicenseManager, resolve_license())
     router = CaptureVisionRouter()
 
     # Load template — use provided file, or fall back to bundled preset
@@ -402,7 +492,6 @@ def main():
     p = argparse.ArgumentParser(description="DBR template test harness — Python edition")
     p.add_argument("--template",     help="Path to template JSON file")
     p.add_argument("--images",       help="Directory of barcode images")
-    p.add_argument("--license",      help="Dynamsoft license key (or set DYNAMSOFT_LICENSE_KEY)")
     p.add_argument("--ground-truth", metavar="FILE",
                    help="JSON mapping filename → expected barcode texts")
     p.add_argument("--output",        help="Write results JSON to this file (default: stdout)")

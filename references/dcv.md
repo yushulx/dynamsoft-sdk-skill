@@ -7,7 +7,7 @@ Use Dynamsoft Capture Vision (DCV) as the unified foundation for modern vision w
 Official docs: https://www.dynamsoft.com/capture-vision/docs/
 Primary sample index: `references/samples.md`
 
-License for generated examples in this repository: always use the user's own key when provided.
+License for generated examples in this repository: use the `YOUR_LICENSE_KEY` placeholder (or an environment variable) — never a real key.
 
 Need a trial license? Apply here:
 https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
@@ -87,7 +87,7 @@ These are verified against the official `Dynamsoft/mrz-scanner-mobile` samples (
 ```python
 from dynamsoft_capture_vision_bundle import *
 
-LICENSE_KEY = "YOUR_LICENSE_KEY"  # public 1-day trial key: see "License for generated examples" above
+LICENSE_KEY = "YOUR_LICENSE_KEY"  # the user supplies the real key; see "License for generated examples" above
 error_code, error_msg = LicenseManager.init_license(LICENSE_KEY)
 router = CaptureVisionRouter()
 
@@ -161,7 +161,7 @@ cp node_modules/dynamsoft-capture-vision-bundle/dist/dcv.bundle.min.js public/
       const { LicenseManager, CaptureVisionRouter, CameraEnhancer, CameraView } = Dynamsoft.CVR;
 
       try {
-        // 1. Initialize License (public 1-day trial key: see "License for generated examples" above)
+        // 1. Initialize License (user supplies the real key; see "License for generated examples" above)
         const LICENSE_KEY = "YOUR_LICENSE_KEY";
         await LicenseManager.initLicense(LICENSE_KEY);
 
@@ -234,7 +234,7 @@ export const BarcodeScannerComponent: React.FC<ScannerProps> = ({ onResultsFound
       isInitializing.current = true;
 
       try {
-        // Initialize License (public 1-day trial key: see "License for generated examples" above)
+        // Initialize License (user supplies the real key; see "License for generated examples" above)
         const LICENSE_KEY = "YOUR_LICENSE_KEY";
         await LicenseManager.initLicense(LICENSE_KEY);
         if (!active) return;
@@ -334,7 +334,7 @@ from dynamsoft_capture_vision_bundle import *
 
 def scan_image(file_path: str):
     # 1. Initialize License
-    LICENSE_KEY = "YOUR_LICENSE_KEY"  # public 1-day trial key: see "License for generated examples" above
+    LICENSE_KEY = "YOUR_LICENSE_KEY"  # the user supplies the real key; see "License for generated examples" above
     error_code, error_msg = LicenseManager.init_license(LICENSE_KEY)
     if error_code != EnumErrorCode.EC_OK:
         print(f"License Error: {error_msg}")
@@ -398,7 +398,7 @@ class BarcodeScannerService {
   final FlutterBarcodeSdk _barcodeSdk = FlutterBarcodeSdk();
 
   Future<void> init() async {
-    // Initialize the license key (public 1-day trial key: see "License for generated examples" above)
+    // Initialize the license key (user supplies the real key; see "License for generated examples" above)
     const LICENSE_KEY = 'YOUR_LICENSE_KEY';
     await _barcodeSdk.setLicense(LICENSE_KEY);
     

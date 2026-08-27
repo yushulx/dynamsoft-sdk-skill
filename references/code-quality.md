@@ -29,7 +29,7 @@ When uncertain, prefer one of these safe patterns:
 
 For SDK setup code, include:
 
-- License initialization with the user's own key when provided.
+- License initialization using a placeholder key (`YOUR_LICENSE_KEY`) or an environment variable — never a real key.
 - Resource path or model path configuration when needed.
 - Async initialization and error handling.
 - Cleanup/dispose/destroy behavior for UI components, camera sessions, scanner sessions, router instances, and listeners.

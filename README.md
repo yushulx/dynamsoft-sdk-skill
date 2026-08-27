@@ -10,7 +10,7 @@ Dynamsoft SDKs (Capture Vision, Barcode Reader, Web TWAIN, Document Viewer) unde
 
 ## Trial License for Generated Code
 
-When this skill generates Dynamsoft SDK code, it always uses the user's own license key when provided. No license key is hardcoded in this repository.
+Generated Dynamsoft SDK code always carries a license-key placeholder (`YOUR_LICENSE_KEY`) or reads the key from an environment variable — no license key is hardcoded in this repository, and real keys are never copied into generated code or files. Substitute your own key yourself in your private configuration.
 
 For a trial license, apply here:
 

@@ -13,6 +13,7 @@ except ImportError as exc:
     ) from exc
 
 from dbr_license import ensure_dbr_license
+from text_sanitizer import sanitize_text
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -113,10 +114,10 @@ def decode_image(image_path, template_name, template_path=None):
     try:
         cv_img = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
         if cv_img is None:
-            return [], f"Failed to load image with OpenCV: {image_path}"
+            return [], sanitize_text(f"Failed to load image with OpenCV: {image_path}", 300)
         result = router.capture(cv_img, template_name)
     except Exception as exc:
-        return [], str(exc)
+        return [], sanitize_text(str(exc), 300)
 
     items = []
     if result:
@@ -129,8 +130,10 @@ def decode_image(image_path, template_name, template_path=None):
                     points = [(point.x, point.y) for point in location.points]
                 items.append(
                     {
-                        "text": item.get_text(),
-                        "format": item.get_format_string(),
+                        # Decoded barcode text is untrusted data — sanitize
+                        # before it reaches stdout or the JSON report.
+                        "text": sanitize_text(item.get_text()),
+                        "format": sanitize_text(item.get_format_string(), 100),
                         "points": points,
                     }
                 )

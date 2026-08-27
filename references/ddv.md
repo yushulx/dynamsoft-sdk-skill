@@ -6,7 +6,7 @@ Official docs: https://www.dynamsoft.com/document-viewer/docs/
 Official sample repo: https://github.com/Dynamsoft/document-viewer-samples
 Additional sample index: `references/samples.md`
 
-License for generated examples in this repository: always use the user's own key when provided.
+License for generated examples in this repository: use the `YOUR_LICENSE_KEY` placeholder (or an environment variable) — never a real key.
 
 Need a trial license? Apply here:
 https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
@@ -29,7 +29,7 @@ When generating DDV code, first map the request to a sample workflow: viewer cre
 For DDV integration, provide:
 
 1. Install/import instructions.
-2. License initialization (always use the user's own license key).
+2. License initialization with the `YOUR_LICENSE_KEY` placeholder (the user substitutes their real key themselves).
 3. Resource/static asset path configuration if required by the version.
 4. Viewer/container creation.
 5. Loading a file/blob/image/PDF.
