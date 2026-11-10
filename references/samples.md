@@ -51,8 +51,8 @@ Use DCV samples for modern barcode, QR, MRZ, document detection, document normal
   - Use for Android/iOS barcode scanning, permission handling, camera lifecycle, and native result callbacks.
 - **Flutter SDK Plugins**:
   - Barcode SDK: https://github.com/yushulx/flutter_barcode_sdk
-  - MRZ/OCR SDK: https://github.com/yushulx/flutter_ocr_sdk
-  - Document Scan SDK: https://github.com/yushulx/flutter_document_scan_sdk
+  - MRZ/OCR SDK: https://github.com/yushulx/flutter_capture_vision
+  - Document Scan SDK: https://github.com/yushulx/flutter_capture_vision
 - **React Native, Maui, Xamarin**: Search Dynamsoft GitHub repository for specific frameworks.
 
 ---
