@@ -2,6 +2,19 @@
 
 [![skills.sh](https://skills.sh/b/yushulx/dynamsoft-sdk-skill)](https://skills.sh/yushulx/dynamsoft-sdk-skill)
 
+> **Superseded.** This repository is kept for existing installs only. The current skills live in
+> **[Dynamsoft/dynamsoft-skills](https://github.com/Dynamsoft/dynamsoft-skills)** — split by
+> platform (web, mobile, desktop), with current SDK versions, corrected code patterns and a bundled
+> trial-license MCP server. Install with:
+>
+> ```bash
+> npx skills add Dynamsoft/dynamsoft-skills
+> ```
+>
+> License provisioning moved to
+> **[Dynamsoft/dynamsoft-license-mcp](https://github.com/Dynamsoft/dynamsoft-license-mcp)**
+> (`npx -y dynamsoft-license-mcp`).
+
 An expert-grade AI Agent Skill for generating and reviewing accurate, high-performance code for Dynamsoft SDKs. This skill is optimized to use a **sample-first, modern-architecture workflow**, drawing on official and community samples from `yushulx` and `dynamsoft` to eliminate hallucinations and outdated API usage.
 
 ## Purpose
@@ -12,7 +25,19 @@ Dynamsoft SDKs (Capture Vision, Barcode Reader, Web TWAIN, Document Viewer) unde
 
 Generated Dynamsoft SDK code always carries a license-key placeholder (`YOUR_LICENSE_KEY`) or reads the key from an environment variable — no license key is hardcoded in this repository, and real keys are never copied into generated code or files. Substitute your own key yourself in your private configuration.
 
-For a trial license, apply here:
+Ask the license MCP server for a key instead of visiting the site by hand: it signs in to the customer portal with the user's Google account and returns a trial key for the product and edition the code targets.
+
+```json
+{
+  "mcpServers": {
+    "dynamsoft-license": { "command": "npx", "args": ["-y", "dynamsoft-license-mcp"] }
+  }
+}
+```
+
+The edition matters: `web` for a browser app, `mobile` for a phone app, `desktop` for a script or service, `cross-platform` when one key serves several. A `desktop` key is rejected by a browser runtime. One key covers the Dynamsoft products, so reuse it rather than requesting one per product.
+
+Without the MCP, apply here:
 
 https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
 

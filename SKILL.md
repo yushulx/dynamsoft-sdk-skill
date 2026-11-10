@@ -3,6 +3,13 @@ name: dynamsoft-sdk
 description: Generate and review accurate code for Dynamsoft SDKs — Dynamic Web TWAIN (DWT), Document Viewer (DDV), Barcode Reader (DBR), and Capture Vision (DCV) — using sample-first guidance for barcode, QR, MRZ, and document capture across web, mobile, server, and desktop. Includes a template-optimizer sub-skill for tuning DBR template JSON to maximize decode rates. Use for Dynamsoft SDK integration, sample code, migration, API usage, troubleshooting, CaptureVisionRouter workflows, or barcode template tuning.
 ---
 
+> **This repository is superseded.** The current skills live in
+> **https://github.com/Dynamsoft/dynamsoft-skills** — split by platform, with current SDK versions
+> and a trial-license MCP server (**https://github.com/Dynamsoft/dynamsoft-license-mcp**).
+> Install with `npx skills add Dynamsoft/dynamsoft-skills` or
+> `/plugin marketplace add Dynamsoft/dynamsoft-skills`. This copy is kept for existing
+> installs and will not receive new content.
+
 # Dynamsoft SDK
 
 Use this skill to generate and review Dynamsoft SDK code. Prefer **official or known working sample code first**, then docs for API details. Do not rely on docs alone when a relevant sample exists.
@@ -71,11 +78,22 @@ When a sample link is available, tell the user which sample family the code is b
 
 Generated **DCV / DBR / DDV** code must never contain a real license key. Always emit the placeholder `YOUR_LICENSE_KEY` (or read the key from an environment variable such as `DYNAMSOFT_LICENSE_KEY`) and instruct the user to substitute their own key themselves in their private configuration. Do not ask the user to paste a license key into the conversation, and do not copy any key or secret value from the conversation into generated code, files, or command lines.
 
-If the user needs a trial license, point them to:
+### Getting a trial key
+
+The preferred path is the license MCP server (`dynamsoft-license-mcp`), which signs in to the Dynamsoft customer portal with the user's Google account and returns a real key:
+
+1. Call `get_trial_license` with the product (`dcv`, `dbr`, `dwt`, `ddv`, `mrz`, `mds`) and the edition that matches where the code runs (`web`, `mobile`, `desktop`, or `cross-platform`).
+2. If it returns `status: "login_required"`, a browser window opened for the Google sign-in — ask the user to finish it, then call again. The session is reused.
+3. Write the returned `licenseKey` into the environment/configuration, and show only the masked form (`licenseKeyMasked`) in the conversation.
+4. `get_license_guide` returns the exact initialization call for the target platform.
+
+The **edition must match the runtime**: a `desktop` key used in a browser fails with `[License] License mismatch: Browser requested`. One key covers the Dynamsoft products, so reuse it across barcode, document, MRZ, Web TWAIN and Document Viewer.
+
+Without the MCP, point the user to the official trial page:
 
 https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
 
-This license guidance applies to DCV / DBR / DDV only — DWT (Dynamic Web TWAIN) uses its own `ProductKey` mechanism; leave `YOUR-PRODUCT-KEY` as a placeholder there.
+Dynamic Web TWAIN accepts the **same license key**, assigned to `Dynamsoft.DWT.ProductKey` — that is a property name, not a different key format. The DWT service on the host must be configured with the same key.
 
 ## Accuracy rules
 
