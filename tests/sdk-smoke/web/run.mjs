@@ -168,7 +168,10 @@ try {
   ws.close();
   child.kill();
   server.close();
-  rmSync(root, { recursive: true, force: true });
+  // Chrome flushes its profile after closing; on Linux and Windows the directory is
+  // still busy for a moment. Cleanup is best effort and must never change the result.
+  await sleep(1000);
+  try { rmSync(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); } catch { /* leave it to the runner */ }
 }
 
 process.exit(exitCode);
