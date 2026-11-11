@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Dynamsoft web smoke test</title></head>
+<body>
+<div id="out">loading…</div>
+<script type="module">
+  import {
+    CoreModule, EnumCapturedResultItemType, LicenseManager, CaptureVisionRouter
+  } from "./dynamsoft/__PKG__@__VER__/dist/__ENTRY__";
+
+  // Bundled use needs the engine root before initLicense, or the wasm request
+  // returns index.html and the browser reports "Unexpected token '<'".
+  CoreModule.engineResourcePaths.rootDirectory = "/dynamsoft/";
+
+  window.__run = async (key) => {
+    await LicenseManager.initLicense(key);
+    const router = await CaptureVisionRouter.createInstance();
+    const blob = await (await fetch("/test.png")).blob();
+    const result = await router.capture(blob, "ReadBarcodes_Default");
+    const items = (result.items ?? []).filter((i) => i.type === EnumCapturedResultItemType.CRIT_BARCODE);
+    document.getElementById("out").textContent = items.map((i) => i.text).join(" | ") || "no barcodes";
+    return {
+      texts: items.map((i) => String(i.text)),
+      errorCode: result.errorCode ?? null,
+      errorString: result.errorString ?? null,
+      itemTypes: (result.items ?? []).map((i) => i.type)
+    };
+  };
+
+  window.__ready = true;
+</script>
+</body>
+</html>

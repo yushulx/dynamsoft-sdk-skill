@@ -3,6 +3,7 @@ dist/
 *.log
 .DS_Store
 tests/sdk-smoke/node/node_modules/
+tests/sdk-smoke/web/node_modules/
 tests/sdk-smoke/dotnet/bin/
 tests/sdk-smoke/dotnet/obj/
 tests/sdk-smoke/java/classes/

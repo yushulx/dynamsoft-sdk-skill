@@ -128,6 +128,19 @@ jobs:
         run: |
           echo "::notice::Skipping the .NET decode: the NuGet bundle has no macOS natives."
 
+      - name: Web dependencies
+        if: env.LICENSE_SET == '1'
+        shell: bash
+        working-directory: tests/sdk-smoke/web
+        run: npm install --no-audit --no-fund
+
+      - name: Web barcode decode (headless Chrome)
+        if: env.LICENSE_SET == '1'
+        shell: bash
+        run: |
+          node tests/sdk-smoke/web/run.mjs fixture.png | tee out-web.txt
+          grep -qE "^items: [1-9]" out-web.txt
+
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v4

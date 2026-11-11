@@ -1,0 +1,8 @@
+{
+  "name": "dynamsoft-sdk-smoke-web",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "dynamsoft-barcode-reader-bundle": "11.6.5000"
+  }
+}
