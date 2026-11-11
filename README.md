@@ -1,120 +1,157 @@
-# Dynamsoft SDK Skill
+# Dynamsoft agent skills
 
 [![skills.sh](https://skills.sh/b/yushulx/dynamsoft-sdk-skill)](https://skills.sh/yushulx/dynamsoft-sdk-skill)
 
-An expert-grade AI Agent Skill for generating and reviewing accurate, high-performance code for Dynamsoft SDKs. This skill is optimized to use a **sample-first, modern-architecture workflow**, drawing on official and community samples from `yushulx` and `dynamsoft` to eliminate hallucinations and outdated API usage.
+> **Staging copy.** This repository is where the skills are being validated before they move to the
+> Dynamsoft organization. The plugin and marketplace names are already final (`dynamsoft-sdk`,
+> `dynamsoft-plugins`), so installation commands and generated projects keep working after the move.
 
-## Purpose
+AI agent skills for integrating the [Dynamsoft](https://www.dynamsoft.com/) SDKs, plus a license
+server that issues trial keys so generated code actually runs.
 
-Dynamsoft SDKs (Capture Vision, Barcode Reader, Web TWAIN, Document Viewer) undergo rapid evolution. This skill ensures that AI assistants generate up-to-date, version-safe code, specifically focusing on the unified **Dynamsoft Capture Vision (DCV)** framework and the lightweight **Dynamsoft Barcode Reader (DBR)** package for barcode-only workflows.
+Each skill is scoped to one job — barcode scanning on web, mobile or server, MRZ, document capture,
+Web TWAIN scanning, document viewing, migration, template tuning — and carries the code patterns,
+licensing, pitfalls and sample links for that job. The agent loads only the one your prompt needs.
 
-## Trial License for Generated Code
-
-Generated Dynamsoft SDK code always carries a license-key placeholder (`YOUR_LICENSE_KEY`) or reads the key from an environment variable — no license key is hardcoded in this repository, and real keys are never copied into generated code or files. Substitute your own key yourself in your private configuration.
-
-Ask the license MCP server for a key instead of visiting the site by hand: it signs in to the customer portal with the user's Google account and returns a trial key for the product and edition the code targets.
-
-```json
-{
-  "mcpServers": {
-    "dynamsoft-license": { "command": "npx", "args": ["-y", "dynamsoft-license-mcp"] }
-  }
-}
-```
-
-The edition matters: `web` for a browser app, `mobile` for a phone app, `desktop` for a script or service, `cross-platform` when one key serves several. A `desktop` key is rejected by a browser runtime. One key covers the Dynamsoft products, so reuse it rather than requesting one per product.
-
-Without the MCP, apply here:
-
-https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform
-
-## Folder Structure
-
-The repository is structured as a modular knowledge base for easy indexing and routing:
-
-```text
-dynamsoft-sdk-skill/
-├── SKILL.md                 # Main agent routing and behavior mandates
-├── README.md                # Skill overview and developer guide
-├── references/
-│   ├── samples.md           # Unified index of official and yushulx sample repos
-│   ├── dcv.md               # Unified Capture Vision (Barcode, QR, MRZ, Doc Detection)
-│   ├── dbr.md               # Lightweight DBR package (barcode-only, not legacy)
-│   ├── dwt.md               # Dynamic Web TWAIN (Browser scanner acquisition)
-│   ├── ddv.md               # Dynamsoft Document Viewer (Web viewing & page UI)
-│   ├── code-quality.md      # Code quality rules & validation checklist
-│   ├── migration.md         # ZXing / ML Kit / Scandit → Dynamsoft migration playbooks
-│   ├── dbr-web.md           # DBR web-specific redirect
-│   ├── dbr-mobile.md        # DBR mobile-specific redirect
-│   └── dbr-server-desktop.md # DBR server/desktop-specific redirect
-└── template-optimizer/      # DBR template tuning sub-skill (Python-only)
-    ├── SKILL.md             # Optimize / Educate / Report workflow
-    ├── PROMPT.md            # Portable copyable prompt for any coding agent
-    ├── KNOWLEDGE.md         # DBR template parameter knowledge base
-    ├── requirements.txt     # Python dependencies (capture-vision-bundle)
-    ├── tools/               # Single-image triage & validation scripts
-    ├── resources/           # Batch harness + HTML report template
-    └── templates/           # Example template + version-specific parameter refs
-```
-
-## Supported Product Boundaries
-
-To build apps conveniently and avoid architectural confusion, developers and AI agents must follow these product boundaries:
-
-*   **Dynamic Web TWAIN (DWT)**: Used **strictly** for physical document scanning (TWAIN/SANE/ICA/WIA/eSCL) inside browser environments.
-*   **Dynamsoft Document Viewer (DDV)**: Used for browser-based document viewing, PDF rendering, annotations, and page manipulation.
-*   **Dynamsoft Capture Vision (DCV)**: The full unified architecture for camera/video capture, barcode/QR code reading, MRZ (passport) parsing, document boundary detection, and document normalization. Includes DBR + DDN + DLR. The core API entry point is `CaptureVisionRouter` (CVR), which orchestrates inputs, recognition engines, and output results.
-*   **Dynamsoft Barcode Reader (DBR)**: A **lightweight, actively maintained** package (v11.x) that is a **submodule of DCV**. It contains only the barcode reading engine — the same engine that runs inside DCV. Use DBR when you only need barcode/QR reading and prefer a smaller dependency. **DBR is not legacy or deprecated.**
-
-### DCV Core API vs RTU (Ready-to-Use) — Architectural Guidance
-
-Dynamsoft provides **RTU (ready-to-use)** wrapper components (e.g., `BarcodeScanner`, `BarcodeReader`, `DocumentScanner`, `MRZScanner`) that bundle a UI, camera, and recognition pipeline into a single high-level object. All RTU components are built **on top of** the DCV core APIs (`CaptureVisionRouter`, `CameraEnhancer`, `CameraView`, etc.).
-
-**RTU has poor programmability and flexibility**, making it only suitable for very simple use cases where the default UI and pipeline behavior is acceptable. For any real-world or complex scenario, developers **must** use the DCV core APIs directly:
-
-| Approach | Entry Point | Programmability | When to Use |
-|---------|-----------|-----------------|------------|
-| **DCV core API (recommended)** | `CaptureVisionRouter` + `CameraEnhancer` + `CameraView` + `CapturedResultReceiver` | Full control over pipeline, templates, ROI, multi-task, result handling | Any production, complex, or customized scenario |
-| **RTU wrapper (limited)** | `BarcodeScanner.createInstance()` / `BarcodeReader.createInstance()` / `DocumentScanner` etc. | Minimal — preset UI and pipeline, little customization | Quick prototypes or demos only |
-
-This skill always generates code using DCV core APIs. RTU wrappers are only mentioned as a quick-prototyping option with an explicit caveat about their limitations.
-
-> **Note**: On server/desktop platforms (Python, C++, .NET, Java, Node.js), there are no RTU wrappers — `CaptureVisionRouter` is used directly. The RTU wrappers exist only on web and mobile platforms.
-
-## DBR Template Optimizer (Sub-Skill)
-
-The bundled `template-optimizer/` sub-skill iteratively tunes a Dynamsoft Barcode Reader **template JSON** to maximize decode success on difficult barcode images. It operates in three modes:
-
-*   **Optimize**: Iteratively tune a template against a single hard image (triage) or a directory of images (dataset optimization with score-based iteration and regression detection).
-*   **Educate**: Explain DBR template structure, the Section/Stage hierarchy, and parameter families (DeblurModes, GrayscaleEnhancementModes, LocalizationModes, etc.).
-*   **Report**: Generate an interactive visual HTML report showing per-image decode results, confidence, and barcode location overlays.
-
-It is **Python-only** (depends on `dynamsoft-capture-vision-bundle`) and ships with helper scripts under `template-optimizer/tools/` for single-image triage, a batch harness under `template-optimizer/resources/harness_py/`, and an accumulated parameter knowledge base in `template-optimizer/KNOWLEDGE.md`. See `template-optimizer/SKILL.md` for the full workflow.
-
-## Sample-First Code Generation
-
-Before generating any code, the skill identifies the closest sample from `references/samples.md` across these categories:
-1.  **Product/Workflow**: Same product (DCV, DBR, DWT, DDV).
-2.  **Platform/Language**: Web (JS/React/Vue/Angular), Mobile (Kotlin, Swift, Flutter, React Native), or Server/Desktop (Python, C#, C++, Node.js).
-3.  **Input Source**: Camera, static image/PDF, file upload, or physical scanner.
-4.  **Output**: Decoded data (barcodes, MRZ), coordinates, cropped/normalized document image, viewer UI.
-
-## Installation
-
-Install this skill via `npx skills add`:
+## Install
 
 ```bash
-npx skills add https://github.com/yushulx/dynamsoft-sdk-skill
+npx skills add yushulx/dynamsoft-sdk-skill                    # pick skills interactively
+npx skills add yushulx/dynamsoft-sdk-skill --skill web-twain  # just one skill
 ```
 
-This fetches the skill from GitHub and registers it with your AI coding agent (VS Code Copilot, Cursor, Claude Code, etc.).
+`npx skills add` also targets OpenCode, Codex and other agents (`--agent opencode`); `--list` shows
+the skills without installing.
 
-## Getting Started
+Or install through your agent's own marketplace:
 
-To use this skill effectively in an AI-assisted development workflow (e.g., Cursor, Claude Desktop, Trae, or Gemini CLI), ask queries such as:
-- *"Help me build a real-time web barcode scanner using Dynamsoft Capture Vision core APIs (CaptureVisionRouter)."*
-- *"How do I scan a document from a physical scanner in Angular using Dynamic Web TWAIN?"*
-- *"Write a Python script to scan MRZ from a passport image using Dynamsoft Capture Vision."*
-- *"How can I combine Dynamic Web TWAIN (DWT) and Dynamsoft Document Viewer (DDV) to scan and edit pages in a browser?"*
-- *"Optimize my DBR template to improve the decode rate on these difficult barcode images."*
-- *"Explain which DBR template parameters help with blurry barcodes."*
+| Agent | Install |
+| --- | --- |
+| Claude Code | `/plugin marketplace add yushulx/dynamsoft-sdk-skill` then `/plugin install dynamsoft-sdk@dynamsoft-plugins` |
+| Cursor | `/add-plugin dynamsoft-sdk`, or the marketplace listing |
+| Codex CLI | `codex plugin marketplace add yushulx/dynamsoft-sdk-skill` then `codex plugin add dynamsoft-sdk@dynamsoft-plugins` |
+
+## Skills
+
+| Skill | Platform | Capabilities |
+| --- | --- | --- |
+| `dynamsoft-sdk` | — | Product/package choice, license key, routing, version baseline |
+| `capture-vision-web` | JS/TS, React, Vue, Angular, Next | barcode, document, MRZ, label, PDF |
+| `capture-vision-mobile` | Android, iOS, Flutter, React Native, MAUI | barcode, document, MRZ, label, camera |
+| `capture-vision-desktop` | Python, .NET, Java, C++, Node.js, Electron | barcode, document, MRZ, label, batch |
+| `web-twain` | Browser + service/REST | TWAIN/SANE/WIA/ICA/eSCL acquisition |
+| `document-viewer` | Browser | View, annotate, export |
+| `sdk-migration` | All | ZXing, ML Kit, Scandit, older DBR/DCV |
+| `barcode-template-optimizer` | All | Decode-rate tuning and reports |
+
+Skills are split by **platform**, because that is how the SDK is packaged: one router per platform,
+several capabilities selected by template. Barcode, document, MRZ and label capture therefore live in
+the same platform skill — there is no separate `mrz-*` or `document-*` mobile skill.
+
+Coverage of every published SDK, and what has been executed versus verified against sample code, is
+tracked in [`docs/coverage.md`](docs/coverage.md).
+
+## License keys
+
+The plugin ships an MCP server, [`dynamsoft-license-mcp`](https://www.npmjs.com/package/dynamsoft-license-mcp),
+that signs in to the Dynamsoft customer portal with the user's Google account and returns a trial
+key. Every implementation skill points at it:
+
+1. `get_trial_license` — returns the key, its expiry and a masked preview.
+2. `get_license_guide` — returns the exact initialization call for the target platform.
+3. `describe_license` — masked summary, format and expiry.
+4. `get_trial_page_url` — the manual application page, as a fallback.
+
+The first call opens a browser window for the Google sign-in; after that the session is reused.
+Keys go into an environment variable (`DYNAMSOFT_LICENSE_KEY`), never into generated source, and the
+skills instruct the agent to show only the masked form in conversation.
+
+Dynamic Web TWAIN reads the key from `Dynamsoft.DWT.ProductKey` instead of `initLicense`; the same
+MCP issues it for `product: "dwt"` (or `"dwt-ddv"` together with Document Viewer).
+
+## Version baseline
+
+The skills target these versions (checked 2026-11-10):
+
+| Package | Version |
+| --- | --- |
+| `dynamsoft-capture-vision-bundle` | 3.6.5000 |
+| `dynamsoft-barcode-reader-bundle` | 11.6.5000 |
+| Barcode Reader mobile | 11.6.4000 |
+| Capture Vision mobile | 3.6.4000 |
+| `dwt` | 19.5.0 |
+| `dynamsoft-document-viewer` | 5.0.1 |
+| `dynamsoft-mrz-scanner` | 4.1.0 |
+| `dynamsoft-document-scanner` | 1.5.0 |
+| `dynamsoft-capture-vision-for-node` | 3.6.4003 |
+
+## Repository layout
+
+```text
+.claude-plugin/    Claude Code plugin and marketplace manifests
+.cursor-plugin/    Cursor plugin and marketplace manifests
+.codex-plugin/     Codex / OpenAI plugin manifest
+.mcp.json          the license MCP server entry
+skills/            one directory per skill
+scripts/verify.mjs manifest, frontmatter and encoding checks
+```
+
+## Privacy and data flow
+
+The skills themselves are static text: they read nothing, send nothing, and run no code on their
+own. The only component that talks to the network is the separate
+[`dynamsoft-license-mcp`](https://github.com/Dynamsoft/dynamsoft-license-mcp) server, and only when
+a skill asks it for a license key:
+
+| Step | What happens | Where the data goes |
+| --- | --- | --- |
+| 1 | `get_trial_license` opens the Dynamsoft customer portal in your browser | your browser → `www.dynamsoft.com` |
+| 2 | You sign in with Google | Google → the Dynamsoft portal (the portal's own OAuth) |
+| 3 | The server reads the portal's session cookies over the DevTools protocol | local only |
+| 4 | It calls three portal endpoints (`User/Info`, `Trial/GetCompanyRecordList`, `Trial/RequestFromWeb`) | local → `www.dynamsoft.com` |
+| 5 | It stores the session and the key under `~/.dynamsoft-license-mcp` with owner-only permissions | local only |
+
+- **No telemetry.** Neither the skills nor the server report usage anywhere.
+- **No third-party services.** The only host contacted is `www.dynamsoft.com`; the server does not
+  use an analytics or proxy service.
+- **The key stays local.** It is never written to a log and never sent anywhere except the
+  Dynamsoft portal that issued it. Tool responses include a masked form, and the skills instruct the
+  agent to show only that.
+- **You can decline the sign-in.** `get_trial_page_url` returns the official application page
+  instead; apply there by hand and skip the MCP entirely.
+- **Signing out** is deleting `~/.dynamsoft-license-mcp`.
+
+Dynamsoft's own privacy policy: <https://www.dynamsoft.com/privacy/>.
+
+## Development
+
+```bash
+node scripts/verify.mjs                    # manifests, frontmatter, BOM and mojibake
+```
+
+Contribution rules — skill structure, licence wording, and the checks to run — are in
+[`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+Every skill's frontmatter is deliberately limited to `name` and `description` so the same file works
+unchanged in Claude Code, Cursor and Codex.
+
+## Tests
+
+`scripts/verify.mjs` runs on Linux, Windows and macOS in CI, and the SDK smoke tests decode the same
+generated QR fixture through every language binding:
+
+| Binding | Test | Tier |
+| --- | --- | --- |
+| Python | `tests/sdk-smoke/python/scan.py` | executed |
+| Node.js | `tests/sdk-smoke/node/scan.mjs` | executed |
+| Java | `tests/sdk-smoke/java/Scan.java` | executed |
+| .NET | `tests/sdk-smoke/dotnet` | builds; decode runs in CI |
+
+The workflow needs a repository secret named `DYNAMSOFT_LICENSE_KEY`; without it the SDK jobs are
+skipped with a warning rather than failing. See [`docs/coverage.md`](docs/coverage.md) for the tier
+of every product, platform and framework, and [`docs/e2e-2026-11-10.md`](docs/e2e-2026-11-10.md) for
+the defects these runs already caught.
+
+## License
+
+MIT. Dynamsoft SDKs themselves are commercial products with their own licenses.
