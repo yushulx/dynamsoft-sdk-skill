@@ -2,19 +2,6 @@
 
 [![skills.sh](https://skills.sh/b/yushulx/dynamsoft-sdk-skill)](https://skills.sh/yushulx/dynamsoft-sdk-skill)
 
-> **Superseded.** This repository is kept for existing installs only. The current skills live in
-> **[Dynamsoft/dynamsoft-skills](https://github.com/Dynamsoft/dynamsoft-skills)** — split by
-> platform (web, mobile, desktop), with current SDK versions, corrected code patterns and a bundled
-> trial-license MCP server. Install with:
->
-> ```bash
-> npx skills add Dynamsoft/dynamsoft-skills
-> ```
->
-> License provisioning moved to
-> **[Dynamsoft/dynamsoft-license-mcp](https://github.com/Dynamsoft/dynamsoft-license-mcp)**
-> (`npx -y dynamsoft-license-mcp`).
-
 An expert-grade AI Agent Skill for generating and reviewing accurate, high-performance code for Dynamsoft SDKs. This skill is optimized to use a **sample-first, modern-architecture workflow**, drawing on official and community samples from `yushulx` and `dynamsoft` to eliminate hallucinations and outdated API usage.
 
 ## Purpose
