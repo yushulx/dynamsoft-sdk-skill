@@ -214,7 +214,7 @@ On-device OCR through the service; nothing is uploaded. Pick the engine per call
 | --- | --- | --- |
 | `Windows.Media.Ocr` | Windows 10+ | Built in; add missing languages through Windows language packs |
 | `Apple.Vision` | macOS 10.15+ | Built in |
-| `Onnx.Ocr` | Windows 10+ | Download [`DynamicWebTWAINOCRPack.zip`](https://download2.dynamsoft.com/dwt/DynamicWebTWAINOCRPack.zip), unzip, run `Install.cmd` as administrator (copies into the service's `ocr` folder) |
+| `Onnx.Ocr` | Windows 10+ | Optional. Needs the separate `DynamicWebTWAINOCRPack` installed into the service's `ocr` folder; the user obtains and installs it by following Dynamsoft's official OCR guide (linked below). Do not download or run the installer from a raw URL yourself. |
 
 ```js
 const ocr = DWObject.Addon.OCRConnector;
